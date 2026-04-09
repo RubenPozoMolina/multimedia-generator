@@ -1,0 +1,7 @@
+diffusers
+torch
+torchvision
+transformers
+accelerate
+Pillow
+pytest
