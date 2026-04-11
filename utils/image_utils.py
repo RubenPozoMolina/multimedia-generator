@@ -1,45 +1,71 @@
 import logging
-from pathlib import Path
-from datetime import datetime
 
-import torch
-from diffusers import StableDiffusionPipeline
+from utils.image_models.base_image_model import BaseImageModel
+from utils.image_models.flux_model import FluxModel
+from utils.image_models.sdxl_model import SDXLModel
+from utils.image_models.stable_difusion_model import StableDiffusionModel
 
 logger = logging.getLogger(__name__)
 
+models = [
+    {
+        "name": "CompVis/stable-diffusion-v1-4",
+        "model_class": StableDiffusionModel
+    },
+    {
+        "name": "Lykon/DreamShaper",
+        "model_class": StableDiffusionModel
+    },
+    {
+        "name": "black-forest-labs/FLUX.1-dev",
+        "model_class": FluxModel
+    },
+    {
+        "name": "black-forest-labs/FLUX.1-schnell",
+        "model_class": FluxModel
+    },
+    {
+        "name": "stabilityai/stable-diffusion-xl-base-1.0",
+        "model_class": SDXLModel
+    }
+]
+
+
 class ImageUtils:
+    model = BaseImageModel()
 
-    def __init__(self, model_id="Lykon/DreamShaper", output_path="output"):
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.output_path = Path(output_path)
-        
-        self.output_path.mkdir(parents=True, exist_ok=True)
-        
-        logger.info(f"Initializing StableDiffusionPipeline on {self.device}...")
+    def get_model(self, model_id, output_path="output") -> BaseImageModel:
+        for model in models:
+            if model_id == model["name"]:
+                self.model = model["model_class"](model_id, output_path=output_path)
+                return self.model
+        raise ValueError(f"Model {model_id} not found in the list of supported models.")
+
+    def __init__(self, model_id, output_path="output"):
         try:
-            # Intentar cargar con safetensors por defecto (más seguro)
-            self.pipe = StableDiffusionPipeline.from_pretrained(
-                model_id, 
-                torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
-                use_safetensors=True
-            )
+            self.model = self.get_model(model_id, output_path=output_path)
+            self.model.load_model(model_id)
         except Exception as e:
-            logger.warning(f"Failed to load with safetensors: {e}. Falling back to standard weights.")
-            # Si falla (por archivos faltantes o corruptos), intentar sin forzar safetensors
-            self.pipe = StableDiffusionPipeline.from_pretrained(
-                model_id, 
-                torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
-                use_safetensors=False
-            )
-        self.pipe = self.pipe.to(self.device)
+            logger.error(f"Error loading model: {e}")
 
-    def text_to_image(self, prompt, output_path=None):
-        if output_path:
-            output_file = Path(output_path)
-        else:
-            filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}.png"
-            output_file = self.output_path / filename
-
-        image = self.pipe(prompt).images[0]
-        image.save(str(output_file))
+    def text_to_image(
+            self,
+            prompt,
+            negative_prompt="",
+            height=512,
+            width=512,
+            guidance_scale=7.5,
+            num_inference_steps=50,
+            seed=None,
+            output_path=None
+    ):
+        output_file = self.model.text_to_image(
+            prompt,
+            negative_prompt=negative_prompt,
+            height=height,
+            width=width,
+            guidance_scale=guidance_scale,
+            num_inference_steps=num_inference_steps,
+            output_file_name=output_path
+        )
         return str(output_file)
