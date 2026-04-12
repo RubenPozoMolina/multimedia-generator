@@ -22,8 +22,9 @@ class BaseImageModel:
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
         return_value = Path(self.output_path) / f"{timestamp}.png"
         if output_file_name:
-            return_value = output_file_name
-        return return_value
+            return_value = Path(output_file_name)
+        return_value.parent.mkdir(parents=True, exist_ok=True)
+        return str(return_value)
 
     def text_to_image(
             self,

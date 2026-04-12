@@ -1,4 +1,8 @@
 import logging
+from pathlib import Path
+
+from PIL import Image
+from moviepy import VideoFileClip, concatenate_videoclips
 
 from utils.video_models.base_video_model import BaseVideoModel
 from utils.video_models.ltx_video_model import LTXVideoModel
@@ -87,3 +91,37 @@ class VideoUtils:
             output_file_name=output_path
         )
         return str(output_file)
+
+    @staticmethod
+    def extract_last_frame(video_path):
+        clip = VideoFileClip(str(video_path))
+        try:
+            last_frame = clip.get_frame(clip.duration - (1.0 / clip.fps))
+            return Image.fromarray(last_frame)
+        finally:
+            clip.close()
+
+    @staticmethod
+    def concatenate_videos(video_paths, output_file, fps=None):
+        if not video_paths:
+            raise ValueError("No video paths provided for concatenation.")
+
+        logger.info("Concatenating %d videos into %s", len(video_paths), output_file)
+        clips = []
+        try:
+            for video_path in video_paths:
+                clip = VideoFileClip(str(video_path))
+                clips.append(clip)
+
+            final_clip = concatenate_videoclips(clips)
+
+            output_path = Path(output_file)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+
+            final_fps = fps if fps is not None else clips[0].fps
+            final_clip.write_videofile(str(output_path), fps=final_fps, logger=None)
+            logger.info("Concatenated video saved to %s", output_path)
+            return str(output_path)
+        finally:
+            for clip in clips:
+                clip.close()

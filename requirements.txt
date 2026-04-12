@@ -8,3 +8,4 @@ pytest
 invisible_watermark
 safetensors
 ftfy
+moviepy

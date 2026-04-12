@@ -44,6 +44,20 @@ class TestBaseVideoModel:
         file_name = model.get_file_name("custom_video.mp4")
         assert file_name == "custom_video.mp4"
 
+    def test_align_dimension_already_divisible(self):
+        assert BaseVideoModel.align_dimension(480) == 480
+        assert BaseVideoModel.align_dimension(704) == 704
+        assert BaseVideoModel.align_dimension(32) == 32
+
+    def test_align_dimension_rounds_to_nearest(self):
+        assert BaseVideoModel.align_dimension(360) == 352
+        assert BaseVideoModel.align_dimension(640) == 640
+        assert BaseVideoModel.align_dimension(500) == 512
+
+    def test_align_dimension_minimum_is_divisor(self):
+        assert BaseVideoModel.align_dimension(1) == 32
+        assert BaseVideoModel.align_dimension(15) == 32
+
 
 class TestVideoUtils:
 
@@ -91,3 +105,61 @@ class TestVideoUtils:
         result = video_utils.image_to_video("image.png", "a cat running")
         assert result == "output/video.mp4"
         mock_model.image_to_video.assert_called_once()
+
+    def test_concatenate_videos_raises_on_empty_list(self):
+        with pytest.raises(ValueError, match="No video paths provided"):
+            VideoUtils.concatenate_videos([], "output/final.mp4")
+
+    @patch("utils.video_utils.concatenate_videoclips")
+    @patch("utils.video_utils.VideoFileClip")
+    def test_concatenate_videos_calls_moviepy(self, mock_vfc, mock_concat, tmp_path):
+        mock_clip_1 = MagicMock()
+        mock_clip_1.fps = 30
+        mock_clip_2 = MagicMock()
+        mock_vfc.side_effect = [mock_clip_1, mock_clip_2]
+
+        mock_final = MagicMock()
+        mock_concat.return_value = mock_final
+
+        output_file = str(tmp_path / "final.mp4")
+        result = VideoUtils.concatenate_videos(["a.mp4", "b.mp4"], output_file)
+
+        assert mock_vfc.call_count == 2
+        mock_concat.assert_called_once_with([mock_clip_1, mock_clip_2])
+        mock_final.write_videofile.assert_called_once_with(output_file, fps=30, logger=None)
+        assert result == output_file
+        mock_clip_1.close.assert_called_once()
+        mock_clip_2.close.assert_called_once()
+
+    @patch("utils.video_utils.concatenate_videoclips")
+    @patch("utils.video_utils.VideoFileClip")
+    def test_concatenate_videos_uses_custom_fps(self, mock_vfc, mock_concat, tmp_path):
+        mock_clip = MagicMock()
+        mock_clip.fps = 30
+        mock_vfc.return_value = mock_clip
+
+        mock_final = MagicMock()
+        mock_concat.return_value = mock_final
+
+        output_file = str(tmp_path / "final.mp4")
+        VideoUtils.concatenate_videos(["a.mp4"], output_file, fps=60)
+
+        mock_final.write_videofile.assert_called_once_with(output_file, fps=60, logger=None)
+
+    @patch("utils.video_utils.VideoFileClip")
+    def test_extract_last_frame_returns_pil_image(self, mock_vfc):
+        import numpy as np
+        from PIL import Image
+
+        mock_clip = MagicMock()
+        mock_clip.duration = 5.0
+        mock_clip.fps = 30
+        mock_clip.get_frame.return_value = np.zeros((480, 640, 3), dtype=np.uint8)
+        mock_vfc.return_value = mock_clip
+
+        result = VideoUtils.extract_last_frame("video.mp4")
+
+        assert isinstance(result, Image.Image)
+        assert result.size == (640, 480)
+        mock_clip.get_frame.assert_called_once()
+        mock_clip.close.assert_called_once()

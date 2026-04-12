@@ -1,6 +1,10 @@
+import logging
+
 import torch
 from pathlib import Path
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 
 class BaseVideoModel:
@@ -14,6 +18,15 @@ class BaseVideoModel:
         self.model_id = model_id
         self.output_path = output_path
 
+    @staticmethod
+    def align_dimension(value, divisor=32):
+        aligned = round(value / divisor) * divisor
+        if aligned == 0:
+            aligned = divisor
+        if aligned != value:
+            logger.warning("Dimension %d is not divisible by %d, adjusted to %d", value, divisor, aligned)
+        return aligned
+
     def load_model(self, model_id):
         raise NotImplementedError("load_model method must be implemented in the child class.")
 
@@ -21,8 +34,9 @@ class BaseVideoModel:
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
         return_value = Path(self.output_path) / f"{timestamp}.mp4"
         if output_file_name:
-            return_value = output_file_name
-        return return_value
+            return_value = Path(output_file_name)
+        return_value.parent.mkdir(parents=True, exist_ok=True)
+        return str(return_value)
 
     def text_to_video(
             self,

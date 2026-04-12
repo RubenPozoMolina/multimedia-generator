@@ -31,6 +31,8 @@ class LTXVideoModel(BaseVideoModel):
             seed=None,
             output_file_name=None
     ):
+        height = self.align_dimension(height)
+        width = self.align_dimension(width)
         output_file = self.get_file_name(output_file_name)
         generator = torch.Generator(device=self.device).manual_seed(seed) if seed is not None else None
         video = self.pipeline(
@@ -60,6 +62,8 @@ class LTXVideoModel(BaseVideoModel):
             seed=None,
             output_file_name=None
     ):
+        height = self.align_dimension(height)
+        width = self.align_dimension(width)
         i2v_pipeline = LTXImageToVideoPipeline.from_pretrained(
             self.model_id,
             torch_dtype=torch.bfloat16,
