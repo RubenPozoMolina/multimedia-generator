@@ -22,9 +22,9 @@ class VideoUtils:
     model = BaseVideoModel()
 
     def get_model(self, model_id, output_path="output") -> BaseVideoModel:
-        for model in models:
-            if model_id == model["name"]:
-                self.model = model["model_class"](model_id, output_path=output_path)
+        for model_entry in models:
+            if model_id == model_entry["name"]:
+                self.model = model_entry["model_class"](model_id, output_path=output_path)
                 return self.model
         raise ValueError(f"Model {model_id} not found in the list of supported models.")
 

@@ -37,6 +37,7 @@ class BaseImageModel:
             output_file_name=None
     ):
         output_file = self.get_file_name(output_file_name)
+        generator = torch.Generator(device=self.device).manual_seed(seed) if seed is not None else None
         if "FLUX" in self.model_id:
             image = self.pipeline(
                 prompt,
@@ -45,7 +46,7 @@ class BaseImageModel:
                 width=width,
                 guidance_scale=guidance_scale,
                 num_inference_steps=num_inference_steps,
-                generator=seed
+                generator=generator
             ).images[0]
         else:
             image = self.pipeline(
@@ -60,8 +61,27 @@ class BaseImageModel:
         image.save(str(output_file))
         return output_file
 
-    def image_to_image(self, image, output_file_name=None):
+    def image_to_image(self,
+            image,
+            prompt="",
+            negative_prompt=" ",
+            true_cfg_scale=4.0,
+            num_inference_steps=50,
+            height=512,
+            width=512,
+            seed=None,
+            output_file_name=None
+        ):
         output_file = self.get_file_name(output_file_name)
-        image = self.pipeline(image).images[0]
+        image = self.pipeline(
+            image,
+            prompt=prompt,
+            negative_prompt=negative_prompt,
+            true_cfg_scale=true_cfg_scale,
+            num_inference_steps=num_inference_steps,
+            height=height,
+            width=width,
+            seed=seed
+        ).images[0]
         image.save(str(output_file))
         return output_file

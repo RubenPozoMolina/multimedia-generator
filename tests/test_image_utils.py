@@ -5,6 +5,7 @@ import pytest
 
 from utils.image_models.base_image_model import BaseImageModel
 from utils.image_models.flux_model import FluxModel
+from utils.image_models.qwen_image_edit_model import QwenImageEditModel
 from utils.image_models.sdxl_model import SDXLModel
 from utils.image_models.stable_difusion_model import StableDiffusionModel
 from utils.image_utils import ImageUtils, models
@@ -82,6 +83,21 @@ class TestBaseImageModel:
         mock_image.save.assert_called_once()
         assert str(result) == "out.png"
 
+    def test_text_to_image_creates_generator_for_flux_with_seed(self):
+        model = BaseImageModel(model_id="black-forest-labs/FLUX.1-dev", output_path="output")
+        mock_image = MagicMock()
+        mock_pipeline = MagicMock()
+        mock_pipeline.return_value.images = [mock_image]
+        model.pipeline = mock_pipeline
+
+        result = model.text_to_image("a cat", seed=42, output_file_name="out.png")
+
+        call_kwargs = mock_pipeline.call_args
+        generator = call_kwargs[1]["generator"] if "generator" in call_kwargs[1] else call_kwargs.kwargs["generator"]
+        assert generator is not None
+        mock_image.save.assert_called_once()
+        assert str(result) == "out.png"
+
     def test_image_to_image_calls_pipeline(self):
         model = BaseImageModel(model_id="test-model", output_path="output")
         mock_image = MagicMock()
@@ -91,7 +107,16 @@ class TestBaseImageModel:
 
         result = model.image_to_image("input_image", output_file_name="out.png")
 
-        mock_pipeline.assert_called_once_with("input_image")
+        mock_pipeline.assert_called_once_with(
+            "input_image",
+            prompt="",
+            negative_prompt=" ",
+            true_cfg_scale=4.0,
+            num_inference_steps=50,
+            height=512,
+            width=512,
+            seed=None
+        )
         mock_image.save.assert_called_once()
         assert str(result) == "out.png"
 
@@ -105,6 +130,7 @@ class TestImageUtils:
         assert "black-forest-labs/FLUX.1-dev" in model_names
         assert "black-forest-labs/FLUX.1-schnell" in model_names
         assert "stabilityai/stable-diffusion-xl-base-1.0" in model_names
+        assert "Qwen/Qwen-Image-Edit" in model_names
 
     def test_get_model_returns_stable_diffusion(self):
         image_utils = ImageUtils.__new__(ImageUtils)
@@ -157,6 +183,7 @@ class TestImageUtils:
             width=512,
             guidance_scale=7.5,
             num_inference_steps=50,
+            seed=None,
             output_file_name=None
         )
 
@@ -184,5 +211,60 @@ class TestImageUtils:
             width=768,
             guidance_scale=10.0,
             num_inference_steps=30,
+            seed=42,
+            output_file_name="output/custom.png"
+        )
+
+    def test_get_model_returns_qwen_image_edit(self):
+        image_utils = ImageUtils.__new__(ImageUtils)
+        image_utils.model = BaseImageModel()
+        result = image_utils.get_model("Qwen/Qwen-Image-Edit")
+        assert isinstance(result, QwenImageEditModel)
+
+    def test_image_to_image_delegates_to_model(self):
+        image_utils = ImageUtils.__new__(ImageUtils)
+        mock_model = MagicMock(spec=BaseImageModel)
+        mock_model.image_to_image.return_value = "output/edited.png"
+        image_utils.model = mock_model
+
+        result = image_utils.image_to_image("input_image", prompt="make it red")
+        assert result == "output/edited.png"
+        mock_model.image_to_image.assert_called_once_with(
+            "input_image",
+            prompt="make it red",
+            negative_prompt=" ",
+            true_cfg_scale=4.0,
+            num_inference_steps=50,
+            height=512,
+            width=512,
+            seed=None,
+            output_file_name=None
+        )
+
+    def test_image_to_image_passes_all_parameters(self):
+        image_utils = ImageUtils.__new__(ImageUtils)
+        mock_model = MagicMock(spec=BaseImageModel)
+        mock_model.image_to_image.return_value = "output/custom.png"
+        image_utils.model = mock_model
+
+        result = image_utils.image_to_image(
+            "input_image",
+            prompt="change background",
+            negative_prompt="low quality",
+            true_cfg_scale=6.0,
+            num_inference_steps=30,
+            seed=42,
+            output_path="output/custom.png"
+        )
+        assert result == "output/custom.png"
+        mock_model.image_to_image.assert_called_once_with(
+            "input_image",
+            prompt="change background",
+            negative_prompt="low quality",
+            true_cfg_scale=6.0,
+            num_inference_steps=30,
+            height=512,
+            width=512,
+            seed=42,
             output_file_name="output/custom.png"
         )

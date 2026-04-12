@@ -29,8 +29,10 @@ class WanModel(BaseVideoModel):
             vae=vae,
             torch_dtype=torch.bfloat16,
         )
-        self.pipeline.scheduler = FlowMatchEulerDiscreteScheduler.from_config(
-            self.pipeline.scheduler.config
+        self.pipeline.scheduler = FlowMatchEulerDiscreteScheduler(
+            num_train_timesteps=1000,
+            shift=8.0,
+            use_dynamic_shifting=False,
         )
         self.pipeline.enable_model_cpu_offload()
 
