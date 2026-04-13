@@ -234,6 +234,59 @@ class TestScreenplayProcessor:
         assert call_kwargs["num_inference_steps"] == 10
         assert call_kwargs["seed"] == 42
 
+    @patch("scripts.create_video_from_screenplay.ImageUtils")
+    @patch("scripts.create_video_from_screenplay.VideoUtils")
+    def test_first_scene_uses_image_model_when_specified(self, mock_video_utils_cls, mock_image_utils_cls, tmp_path):
+        screenplay = {
+            "name": "ImageModelTest",
+            "height": 360,
+            "width": 640,
+            "fps": 30,
+            "image_model": "black-forest-labs/FLUX.1-schnell",
+            "scenes": [
+                {"name": "Intro", "duration": 5, "prompt": "A sunrise"},
+                {"name": "Middle", "duration": 3, "prompt": "A forest"},
+            ]
+        }
+        file_path = tmp_path / "screenplay.json"
+        file_path.write_text(json.dumps(screenplay), encoding="utf-8")
+
+        mock_image_utils = MagicMock()
+        initial_image_path = str(tmp_path / "initial_frame.png")
+        Image.new("RGB", (640, 360)).save(initial_image_path)
+        mock_image_utils.text_to_image.return_value = initial_image_path
+        mock_image_utils_cls.return_value = mock_image_utils
+
+        mock_video_utils = MagicMock()
+        mock_video_utils.image_to_video.side_effect = [
+            str(tmp_path / "ImageModelTest_Intro.mp4"),
+            str(tmp_path / "ImageModelTest_Middle.mp4"),
+        ]
+        mock_video_utils_cls.return_value = mock_video_utils
+        mock_video_utils_cls.extract_last_frame.return_value = Image.new("RGB", (640, 360))
+
+        processor = ScreenplayProcessor(file_path, output_path=str(tmp_path))
+        processor.process()
+
+        mock_image_utils_cls.assert_called_once_with("black-forest-labs/FLUX.1-schnell", output_path=str(tmp_path))
+        mock_image_utils.text_to_image.assert_called_once()
+        assert mock_video_utils.text_to_video.call_count == 0
+        assert mock_video_utils.image_to_video.call_count == 2
+
+    @patch("scripts.create_video_from_screenplay.VideoUtils")
+    def test_first_scene_uses_text_to_video_without_image_model(self, mock_video_utils_cls, screenplay_file, tmp_path):
+        mock_video_utils = MagicMock()
+        mock_video_utils.text_to_video.return_value = str(tmp_path / "TestMovie_Intro.mp4")
+        mock_video_utils.image_to_video.return_value = str(tmp_path / "TestMovie_Middle.mp4")
+        mock_video_utils_cls.return_value = mock_video_utils
+        mock_video_utils_cls.extract_last_frame.return_value = Image.new("RGB", (640, 360))
+
+        processor = ScreenplayProcessor(screenplay_file, output_path=str(tmp_path))
+        processor.process()
+
+        assert mock_video_utils.text_to_video.call_count == 1
+        assert mock_video_utils.image_to_video.call_count == 1
+
     @patch("scripts.create_video_from_screenplay.VideoUtils")
     def test_invalid_file_raises_error(self, mock_video_utils_cls, tmp_path):
         file_path = tmp_path / "bad.json"

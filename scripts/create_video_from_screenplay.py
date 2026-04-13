@@ -5,6 +5,8 @@ import logging
 import warnings
 from pathlib import Path
 
+from PIL import Image
+
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -34,6 +36,7 @@ except ImportError:
 root_path = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_path))
 
+from utils.image_utils import ImageUtils
 from utils.video_utils import VideoUtils
 
 DEFAULT_MODEL = "Lightricks/LTX-Video"
@@ -47,6 +50,7 @@ class ScreenplayProcessor:
         self.screenplay = self._load_screenplay()
         self.model_id = model_id or self.screenplay.get("video_model", DEFAULT_MODEL)
         self.video_utils = VideoUtils(self.model_id, output_path=str(self.output_path))
+        self.image_model_id = self.screenplay.get("image_model")
 
     def _load_screenplay(self):
         logger.info("Loading screenplay from %s", self.screenplay_path)
@@ -70,6 +74,21 @@ class ScreenplayProcessor:
 
     def _calculate_num_frames(self, duration, fps):
         return int(duration * fps)
+
+    def _generate_initial_image(self, prompt, negative_prompt="", height=480, width=704,
+                                num_inference_steps=50, seed=None):
+        image_utils = ImageUtils(self.image_model_id, output_path=str(self.output_path))
+        image_path = image_utils.text_to_image(
+            prompt,
+            negative_prompt=negative_prompt,
+            height=height,
+            width=width,
+            num_inference_steps=num_inference_steps,
+            seed=seed,
+            output_path=str(self.output_path / "initial_frame.png")
+        )
+        logger.info("Initial image generated at %s", image_path)
+        return Image.open(image_path)
 
     def _build_full_prompt(self, scene_prompt):
         common_prompt = self.screenplay.get("common_prompt", "")
@@ -106,6 +125,17 @@ class ScreenplayProcessor:
                         index + 1, len(scenes), scene_name, prompt, num_frames)
 
             output_file_name = str(self.output_path / f"{name}_{scene_name}.mp4")
+
+            if last_frame is None and self.image_model_id:
+                logger.info("Generating initial image with model '%s'", self.image_model_id)
+                last_frame = self._generate_initial_image(
+                    prompt,
+                    negative_prompt=scene_negative_prompt,
+                    height=scene_height,
+                    width=scene_width,
+                    num_inference_steps=scene_num_inference_steps,
+                    seed=seed
+                )
 
             if last_frame is not None:
                 logger.info("Using last frame from previous scene for morphing effect")

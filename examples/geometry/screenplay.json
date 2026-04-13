@@ -5,6 +5,7 @@
   "fps": 30,
   "negative_prompt": "blurry, low quality, deformed, off-center, opaque, solid, matte",
   "num_inference_steps": 50,
+  "image_model": "black-forest-labs/FLUX.1-schnell",
   "video_model": "Lightricks/LTX-Video",
   "common_prompt": "A solid black background with a centered 3D translucent glass-like geometric figure slowly rotating, a bright light orbiting around it creating reflections and refractions, iridescent bubble effect, transparent, shiny surface",
   "scenes": [
