@@ -1,7 +1,10 @@
 import logging
+import os
 
+import numpy as np
 import torch
-from diffusers import AutoencoderKLWan, FlowMatchEulerDiscreteScheduler, WanImageToVideoPipeline
+
+from diffusers import WanImageToVideoPipeline
 from diffusers.utils import export_to_video
 
 from utils.video_models.base_video_model import BaseVideoModel
@@ -18,22 +21,19 @@ class WanModel(BaseVideoModel):
         )
 
     def load_model(self, model_id: str):
+        os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
         self.model_id = model_id
-        vae = AutoencoderKLWan.from_pretrained(
-            self.model_id,
-            subfolder="vae",
-            torch_dtype=torch.float32,
-        )
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.allow_tf32 = True
+        dtype = torch.bfloat16
+
         self.pipeline = WanImageToVideoPipeline.from_pretrained(
-            self.model_id,
-            vae=vae,
-            torch_dtype=torch.bfloat16,
+            model_id,
+            torch_dtype=dtype
         )
-        self.pipeline.scheduler = FlowMatchEulerDiscreteScheduler.from_config(
-            self.pipeline.scheduler.config,
-            shift=8.0,
-        )
-        self.pipeline.enable_model_cpu_offload()
+        self.pipeline.to(self.device)
+        self.pipeline.enable_attention_slicing()
+        self.pipeline.vae.enable_tiling()
 
     def image_to_video(
             self,
@@ -46,10 +46,17 @@ class WanModel(BaseVideoModel):
             guidance_scale=5.0,
             num_inference_steps=40,
             seed=None,
+            fps=24,
             output_file_name=None
     ):
+        max_area = height * width
+        aspect_ratio = image.height / image.width
+        mod_value = self.pipeline.vae_scale_factor_spatial * self.pipeline.transformer.config.patch_size[1]
+        height = round(np.sqrt(max_area * aspect_ratio)) // mod_value * mod_value
+        width = round(np.sqrt(max_area / aspect_ratio)) // mod_value * mod_value
+        image = image.resize((width, height))
         output_file = self.get_file_name(output_file_name)
-        generator = torch.Generator(device="cpu").manual_seed(seed) if seed is not None else None
+        generator = torch.Generator(device=self.device).manual_seed(seed) if seed is not None else None
         video = self.pipeline(
             image=image,
             prompt=prompt,
@@ -61,6 +68,6 @@ class WanModel(BaseVideoModel):
             num_inference_steps=num_inference_steps,
             generator=generator,
         ).frames[0]
-        export_to_video(video, str(output_file), fps=16)
+        export_to_video(video, str(output_file), fps=fps)
         logger.info("Video saved to %s", output_file)
         return output_file

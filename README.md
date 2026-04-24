@@ -157,6 +157,9 @@ python scripts/create_video_from_screenplay.py \
 | `negative_prompt`      | Global | No       | `""`                   | Negative prompt for all scenes           |
 | `num_inference_steps`  | Global | No       | `50`                   | Inference steps for all scenes           |
 | `video_model`          | Global | No       | `Lightricks/LTX-Video` | Default video model                      |
+| `image_model`          | Global | No       | `None`                 | Image model for generating an initial frame per scene (all images are generated before video creation) |
+| `common_prompt`        | Global | No       | `""`                   | Common prompt prepended to all scene prompts |
+| `audio`                | Global | No       | `None`                 | Audio file path (relative to screenplay) to overlay on the final video |
 | `prompt`               | Scene  | Yes      | —                      | Text prompt for the scene                |
 | `name`                 | Scene  | No       | `scene_{index}`        | Scene name (used in output filename)     |
 | `duration`             | Scene  | No       | `5`                    | Duration in seconds                      |
@@ -166,3 +169,13 @@ python scripts/create_video_from_screenplay.py \
 | `fps`                  | Scene  | No       | Global value           | Override fps for this scene              |
 | `num_inference_steps`  | Scene  | No       | Global value           | Override inference steps for this scene  |
 | `seed`                 | Scene  | No       | `None`                 | Random seed for reproducibility          |
+
+#### Examples
+
+Generate the "La Plaga" music video (8 post-apocalyptic scenes with audio overlay):
+
+```bash
+python scripts/create_video_from_screenplay.py \
+  --screenplay examples/largo_viaje/el_sabio/la_plaga/screenplay.json \
+  --output output/la_plaga
+```

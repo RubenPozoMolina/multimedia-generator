@@ -2,10 +2,11 @@ import logging
 from pathlib import Path
 
 from PIL import Image
-from moviepy import VideoFileClip, concatenate_videoclips
+from moviepy import AudioFileClip, VideoFileClip, concatenate_videoclips
 
 from utils.video_models.base_video_model import BaseVideoModel
 from utils.video_models.ltx_video_model import LTXVideoModel
+# from utils.video_models.ltx2_model import LTX2Model
 from utils.video_models.wan_model import WanModel
 
 logger = logging.getLogger(__name__)
@@ -15,6 +16,10 @@ models = [
         "name": "Lightricks/LTX-Video",
         "model_class": LTXVideoModel
     },
+    # {
+    #     "name": "Lightricks/LTX-2",
+    #     "model_class": LTX2Model
+    # },
     {
         "name": "Wan-AI/Wan2.2-I2V-A14B-Diffusers",
         "model_class": WanModel
@@ -94,6 +99,9 @@ class VideoUtils:
 
     @staticmethod
     def extract_last_frame(video_path):
+        video_path = Path(video_path)
+        if not video_path.exists():
+            raise FileNotFoundError(f"Video file not found: {video_path}")
         clip = VideoFileClip(str(video_path))
         try:
             last_frame = clip.get_frame(clip.duration - (1.0 / clip.fps))
@@ -107,6 +115,9 @@ class VideoUtils:
             raise ValueError("No video paths provided for concatenation.")
 
         logger.info("Concatenating %d videos into %s", len(video_paths), output_file)
+        for video_path in video_paths:
+            if not Path(video_path).exists():
+                raise FileNotFoundError(f"Video file not found: {video_path}")
         clips = []
         try:
             for video_path in video_paths:
@@ -125,3 +136,28 @@ class VideoUtils:
         finally:
             for clip in clips:
                 clip.close()
+
+    @staticmethod
+    def add_audio_to_video(video_path, audio_path, output_path):
+        video_path = Path(video_path)
+        audio_path = Path(audio_path)
+        if not video_path.exists():
+            raise FileNotFoundError(f"Video file not found: {video_path}")
+        if not audio_path.exists():
+            raise FileNotFoundError(f"Audio file not found: {audio_path}")
+        video_path = str(video_path)
+        audio_path = str(audio_path)
+        output_file = Path(output_path)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+
+        logger.info("Adding audio '%s' to video '%s'", audio_path, video_path)
+        video_clip = VideoFileClip(video_path)
+        audio_clip = AudioFileClip(audio_path)
+        try:
+            video_with_audio = video_clip.with_audio(audio_clip)
+            video_with_audio.write_videofile(str(output_file), fps=video_clip.fps, logger=None)
+            logger.info("Video with audio saved to %s", output_file)
+            return str(output_file)
+        finally:
+            audio_clip.close()
+            video_clip.close()

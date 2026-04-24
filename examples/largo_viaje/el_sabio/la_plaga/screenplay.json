@@ -1,0 +1,44 @@
+{
+  "name": "La_Plaga",
+  "height": 480,
+  "width": 832,
+  "fps": 20,
+  "negative_prompt": "blurry, low quality, deformed, cartoon, anime, text, watermark",
+  "num_inference_steps": 30,
+  "image_model": "black-forest-labs/FLUX.1-schnell",
+  "video_model": "Wan-AI/Wan2.2-I2V-A14B-Diffusers",
+  "common_prompt": "cinematic dark post-apocalyptic scene, horror atmosphere, muted desaturated colors, fog and smoke, dramatic lighting",
+  "audio": "plaga.mp3",
+  "scenes": [
+    {
+      "name": "executive_phone",
+      "duration": 4,
+      "prompt": "a well-dressed Wall Street executive in an expensive suit sitting at a modern office desk, staring intently at his smartphone screen, city skyline visible through floor-to-ceiling windows behind him, cold blue office lighting, close-up shot"
+    },
+        {
+      "name": "strange_glitch",
+      "duration": 4,
+      "prompt": "close-up of a smartphone screen glitching with strange pulsating organic patterns, the executive's face illuminated by an eerie green light from the phone, his expression turning from confusion to fear, distorted reflections on the screen"
+    },
+    {
+      "name": "virus_spreading_skin",
+      "duration": 4,
+      "prompt": "a strange dark virus spreading from the smartphone onto the executive's hand, black veins crawling up his fingers and wrist, his skin turning grey and cracking, the phone still glowing with an unnatural light, extreme close-up of the infection spreading"
+    },
+    {
+      "name": "transformation_begins",
+      "duration": 4,
+      "prompt": "the executive stumbling through the office hallway, his skin turning pale grey with dark veins visible across his face and neck, eyes becoming milky white, suit torn, other office workers backing away in horror, flickering fluorescent lights"
+    },
+    {
+      "name": "zombie_attacks_coworker",
+      "duration": 4,
+      "prompt": "the now fully transformed zombie executive lunging at a terrified coworker in a cubicle, biting into the victim's shoulder, blood splattering on the computer monitor, the victim screaming in agony, office papers flying everywhere"
+    },
+    {
+      "name": "office_chaos",
+      "duration": 4,
+      "prompt": "a crowded office floor in total chaos, multiple freshly bitten workers convulsing on the ground as the infection spreads, people trampling each other trying to reach the elevators, overturned desks and shattered glass, emergency lights flashing red"
+    }
+  ]
+}

@@ -48,6 +48,7 @@ class BaseVideoModel:
             guidance_scale=7.5,
             num_inference_steps=50,
             seed=None,
+            fps=24,
             output_file_name=None
     ):
         raise NotImplementedError("text_to_video method must be implemented in the child class.")
@@ -63,6 +64,7 @@ class BaseVideoModel:
             guidance_scale=7.5,
             num_inference_steps=50,
             seed=None,
+            fps=24,
             output_file_name=None
     ):
         raise NotImplementedError("image_to_video method must be implemented in the child class.")

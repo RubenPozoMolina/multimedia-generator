@@ -39,7 +39,7 @@ class BaseImageModel:
     ):
         output_file = self.get_file_name(output_file_name)
         generator = torch.Generator(device=self.device).manual_seed(seed) if seed is not None else None
-        if "FLUX" in self.model_id:
+        if "FLUX" in self.model_id or "Qwen" in self.model_id:
             image = self.pipeline(
                 prompt,
                 negative_prompt=negative_prompt,

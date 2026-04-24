@@ -29,6 +29,7 @@ class LTXVideoModel(BaseVideoModel):
             guidance_scale=3.0,
             num_inference_steps=50,
             seed=None,
+            fps=24,
             output_file_name=None
     ):
         height = self.align_dimension(height)
@@ -45,7 +46,7 @@ class LTXVideoModel(BaseVideoModel):
             num_inference_steps=num_inference_steps,
             generator=generator,
         ).frames[0]
-        export_to_video(video, str(output_file), fps=24)
+        export_to_video(video, str(output_file), fps=fps)
         logger.info("Video saved to %s", output_file)
         return output_file
 
@@ -60,6 +61,7 @@ class LTXVideoModel(BaseVideoModel):
             guidance_scale=3.0,
             num_inference_steps=50,
             seed=None,
+            fps=24,
             output_file_name=None
     ):
         height = self.align_dimension(height)
@@ -82,6 +84,6 @@ class LTXVideoModel(BaseVideoModel):
             num_inference_steps=num_inference_steps,
             generator=generator,
         ).frames[0]
-        export_to_video(video, str(output_file), fps=24)
+        export_to_video(video, str(output_file), fps=fps)
         logger.info("Video saved to %s", output_file)
         return output_file
