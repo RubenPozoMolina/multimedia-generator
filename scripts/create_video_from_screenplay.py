@@ -98,12 +98,7 @@ class VideoclipGenerator:
 
             ## Concat videos
             final_output_filename = self.output_path + "/final_"+ self.screenplay_json["name"] + ".mp4"
-            if not video_utils:
-                video_utils = VideoUtils(
-                    video_model,
-                    self.output_path,
-                )
-            return_value = video_utils.concatenate_videos(videos, final_output_filename)
+            return_value = VideoUtils.concatenate_videos(videos, final_output_filename)
         except Exception as e:
             self.logger.error("Error processing %s: %s", self.screenplay, e)
         return return_value
