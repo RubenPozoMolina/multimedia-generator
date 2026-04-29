@@ -10,3 +10,4 @@ invisible_watermark
 safetensors
 ftfy
 moviepy
+decorator

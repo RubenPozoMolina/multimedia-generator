@@ -33,6 +33,7 @@ class WanModel(BaseVideoModel):
         )
         self.pipeline.to(self.device)
         self.pipeline.enable_attention_slicing()
+        self.pipeline.enable_model_cpu_offload()
         self.pipeline.vae.enable_tiling()
 
     def image_to_video(

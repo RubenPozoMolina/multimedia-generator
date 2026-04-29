@@ -99,6 +99,32 @@ class VideoclipGenerator:
             ## Concat videos
             final_output_filename = self.output_path + "/final_"+ self.screenplay_json["name"] + ".mp4"
             return_value = VideoUtils.concatenate_videos(videos, final_output_filename)
+
+            screenplay_path = os.path.dirname(self.screenplay)
+
+            ## Add audio
+            if "audio" in self.screenplay_json:
+                audio_file = screenplay_path + os.path.sep + self.screenplay_json["audio"]
+                audio_output = self.output_path + "/final_" + self.screenplay_json["name"] + "_audio.mp4"
+                VideoUtils.add_audio_to_video(final_output_filename, audio_file, audio_output)
+                final_output_filename = audio_output
+
+            # Add subtitles
+            if "subtitles" in self.screenplay_json:
+                subtitles_file = screenplay_path + os.path.sep + self.screenplay_json["subtitles"]
+                
+                # Automatic synchronization if requested and audio exists
+                if self.screenplay_json.get("auto_sync_subtitles") and "audio" in self.screenplay_json:
+                    audio_file = screenplay_path + os.path.sep + self.screenplay_json["audio"]
+                    self.logger.info("Auto-syncing subtitles with audio...")
+                    VideoUtils.sync_subtitles(audio_file, subtitles_file)
+
+                subtitles_output = self.output_path + "/final_" + self.screenplay_json["name"] + "_subtitles.mp4"
+                VideoUtils.add_subtitles_to_video(final_output_filename, subtitles_file, subtitles_output)
+                final_output_filename = subtitles_output
+
+            return_value = final_output_filename
+
         except Exception as e:
             self.logger.error("Error processing %s: %s", self.screenplay, e)
         return return_value

@@ -10,6 +10,11 @@ Install the required dependencies:
 pip install -r requirements.txt
 ```
 
+System dependencies:
+```bash
+pip install imagemagick ffmpeg
+```
+
 A CUDA-compatible GPU is required for model inference.
 
 ## Usage
