@@ -1,4 +1,7 @@
+import logging
 import torch
+
+logger = logging.getLogger(__name__)
 from pathlib import Path
 from datetime import datetime
 
@@ -86,3 +89,18 @@ class BaseImageModel:
         ).images[0]
         image.save(str(output_file))
         return output_file
+
+    def destroy(self):
+        """
+        Deletes the model and pipeline to free memory.
+        """
+        if self.pipeline:
+            del self.pipeline
+            self.pipeline = None
+        if self.model:
+            del self.model
+            self.model = None
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.ipc_collect()
+        logger.info("Model and pipeline destroyed.")

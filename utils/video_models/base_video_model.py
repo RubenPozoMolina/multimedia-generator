@@ -1,5 +1,4 @@
 import logging
-
 import torch
 from pathlib import Path
 from datetime import datetime
@@ -68,3 +67,15 @@ class BaseVideoModel:
             output_file_name=None
     ):
         raise NotImplementedError("image_to_video method must be implemented in the child class.")
+
+    def destroy(self):
+        """
+        Deletes the model and pipeline to free memory.
+        """
+        if self.pipeline:
+            del self.pipeline
+            self.pipeline = None
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.ipc_collect()
+        logger.info("Model and pipeline destroyed.")

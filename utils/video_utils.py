@@ -1,8 +1,10 @@
+import gc
 import json
 import logging
 import os
 from pathlib import Path
 
+import torch
 from PIL import Image
 from moviepy import AudioFileClip, VideoFileClip, concatenate_videoclips, CompositeVideoClip, TextClip
 
@@ -100,6 +102,17 @@ class VideoUtils:
             output_file_name=output_path
         )
         return str(output_file)
+
+    def destroy(self):
+        """
+        Destroys the model and frees memory.
+        """
+        if self.model:
+            # Check if destroy exists (for safety)
+            if hasattr(self.model, 'destroy'):
+                self.model.destroy()
+            del self.model
+            self.model = None
 
     @staticmethod
     def extract_last_frame(video_path):
@@ -320,3 +333,12 @@ class VideoUtils:
             audio_codec="aac",
             fps=video.fps
         )
+
+    @staticmethod
+    def clean_cache():
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.synchronize()
+            torch.cuda.empty_cache()
+            torch.cuda.ipc_collect()
+        gc.collect()

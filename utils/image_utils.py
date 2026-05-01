@@ -112,3 +112,12 @@ class ImageUtils:
             output_file_name=output_path
         )
         return str(output_file)
+
+    def destroy(self):
+        """
+        Destroys the model and frees memory.
+        """
+        if self.model:
+            self.model.destroy()
+            del self.model
+            self.model = None

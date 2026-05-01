@@ -63,7 +63,9 @@ class VideoclipGenerator:
                     self.logger.info("Found existing output file: %s", output_filename)
                 counter += 1
 
-            # Generate videos
+            if image_utils:
+                self.logger.info("Destroying image_utils to free memory")
+                image_utils.destroy()
             video_model = self.screenplay_json["video_model"]
             video_utils = None
             counter = 1
@@ -75,6 +77,7 @@ class VideoclipGenerator:
                 output_filename =  self.output_path + "/{:02d}_".format(counter) + scene["name"] + ".mp4"
                 num_frames = scene["duration"] * fps + 1
                 self.logger.info("Processing video scene: %s", scene)
+                self.logger.info("Frames: %s", num_frames)
                 image = load_image(image_output_filename)
                 if not os.path.exists(output_filename):
                     if not video_utils:
@@ -90,11 +93,17 @@ class VideoclipGenerator:
                         width=width,
                         num_inference_steps=num_inference_steps,
                         num_frames=num_frames,
+                        fps=fps,
                         output_path=output_filename
                     )
                     self.logger.info("Generated video: %s", generated_video)
+                    video_utils.clean_cache()
                 counter += 1
                 videos.append(output_filename)
+
+            if video_utils:
+                self.logger.info("Destroying video_utils to free memory")
+                video_utils.destroy()
 
             ## Concat videos
             final_output_filename = self.output_path + "/final_"+ self.screenplay_json["name"] + ".mp4"

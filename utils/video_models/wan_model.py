@@ -1,6 +1,5 @@
 import logging
 import os
-
 import numpy as np
 import torch
 
@@ -33,8 +32,8 @@ class WanModel(BaseVideoModel):
         )
         self.pipeline.to(self.device)
         self.pipeline.enable_attention_slicing()
-        self.pipeline.enable_model_cpu_offload()
         self.pipeline.vae.enable_tiling()
+        logging.info("Using video model: Wan-AI/Wan2.2-I2V-A14B-Diffusers")
 
     def image_to_video(
             self,
