@@ -1,9 +1,9 @@
 {
     "global_settings": {
         "font": "Liberation-Sans-Bold",
-        "fontsize": 45,
+        "fontsize": 28,
         "color": "white",
-        "position": ["center", 850]
+        "position": ["center", 0.85]
     },
     "subtitles": [
         { "text": "Intoxicados, medio podridos,", "start": 26.30, "end": 28.5 },

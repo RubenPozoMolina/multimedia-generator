@@ -238,14 +238,15 @@ class VideoUtils:
 
         # Convert position list to tuple for MoviePy
         raw_pos = settings.get("position", "bottom")
+        video_height = video.size[1]
         if isinstance(raw_pos, list):
-            f_pos = tuple(raw_pos)
+            f_pos = list(raw_pos)
             # Basic validation to keep subtitles within video height
-            video_height = video.size[1]
             if len(f_pos) == 2 and isinstance(f_pos[1], (int, float)):
                 if f_pos[1] >= video_height:
-                    logger.warning("Subtitle position %s exceeds video height %s. Adjusting.", f_pos, video_height)
-                    f_pos = (f_pos[0], int(video_height * 0.9))
+                    logger.warning("Subtitle position %s exceeds video height %s. Adjusting to 90%%.", f_pos, video_height)
+                    f_pos[1] = int(video_height * 0.9)
+            f_pos = tuple(f_pos)
         else:
             f_pos = raw_pos
 
@@ -293,34 +294,71 @@ class VideoUtils:
 
         def _create_text_clip(text):
             resolved_font = _get_font_path(f_font)
+            # Ensure text is string and handled as UTF-8
+            if not isinstance(text, str):
+                text = str(text)
+
             base_kwargs = {
                 "text": text,
                 "font_size": f_size,
                 "color": f_color,
                 "method": "caption",
-                "size": (int(video_width * 0.8), None)
+                "size": (int(video_width * 0.8), None),
+                "horizontal_align": "center",
+                "vertical_align": "center"
             }
 
-            if not resolved_font:
-                return TextClip(**base_kwargs)
+            def _mk_clip(kwargs):
+                if resolved_font:
+                    try:
+                        return TextClip(font=resolved_font, **kwargs)
+                    except (OSError, ValueError) as error:
+                        logger.warning(
+                            "Invalid font '%s' (resolved '%s'). Falling back to default font. Details: %s",
+                            f_font,
+                            resolved_font,
+                            error
+                        )
+                return TextClip(**kwargs)
 
+            # 1) Create a probe clip to measure text box
+            probe = _mk_clip(base_kwargs)
+            # 2) Add safe vertical padding to avoid glyph clipping (accents, inverted punctuation)
+            safe_pad = max(6, int(f_size * 0.35))
+            padded_kwargs = dict(base_kwargs)
+            padded_kwargs["size"] = (int(video_width * 0.8), probe.size[1] + safe_pad)
+            clip = _mk_clip(padded_kwargs)
+            logger.debug("Subtitle clip size for '%s': probe=%s, final=%s, font='%s'", text, probe.size, clip.size, resolved_font or "default")
+            # Explicitly close probe to free resources
             try:
-                return TextClip(font=resolved_font, **base_kwargs)
-            except (OSError, ValueError) as error:
-                logger.warning(
-                    "Invalid font '%s' (resolved to '%s'). Falling back to default font. Details: %s",
-                    f_font,
-                    resolved_font,
-                    error
-                )
-                return TextClip(**base_kwargs)
+                probe.close()
+            except Exception:
+                pass
+            return clip
 
-        # 3. Create clips
         for entry in data.get("subtitles", []):
-            txt_clip = (_create_text_clip(entry["text"])
-                        .with_start(entry["start"])
-                        .with_end(entry["end"])
-                        .with_position(f_pos))
+            text = entry["text"]
+            txt_clip = _create_text_clip(text)
+            
+            # Position the clip. If relative (0.0 to 1.0), multiply by video size
+            actual_pos = f_pos
+            if isinstance(f_pos, tuple) and len(f_pos) == 2:
+                y_pos = f_pos[1]
+                # If y is a fraction (0..1), convert to pixels
+                if isinstance(y_pos, (int, float)):
+                    if 0.0 <= y_pos <= 1.0:
+                        y_px = int(video_height * y_pos)
+                    else:
+                        y_px = int(y_pos)
+                    # Clamp to keep full subtitle visible with a small bottom margin
+                    bottom_margin = max(10, int(f_size * 0.6))
+                    y_px = min(y_px, max(0, video_height - bottom_margin))
+                    actual_pos = (f_pos[0], y_px)
+
+            txt_clip = (txt_clip
+                        .with_start(entry["start"]) 
+                        .with_end(entry["end"]) 
+                        .with_position(actual_pos))
 
             subtitle_clips.append(txt_clip)
 
