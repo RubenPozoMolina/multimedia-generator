@@ -16,7 +16,6 @@ class QwenImageEditModel(BaseImageModel):
             self.model_id,
             torch_dtype=torch.bfloat16,
         )
-        self.pipeline.enable_model_cpu_offload()
 
     def text_to_image(self, prompt, **kwargs):
         raise NotImplementedError(

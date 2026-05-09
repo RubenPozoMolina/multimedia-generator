@@ -4,7 +4,6 @@ import logging
 import warnings
 from pathlib import Path
 
-# Suprimir avisos de librerías externas (opcionalmente)
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 

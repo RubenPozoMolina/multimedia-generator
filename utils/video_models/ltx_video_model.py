@@ -29,8 +29,11 @@ class LTXVideoModel(BaseVideoModel):
             guidance_scale=3.0,
             num_inference_steps=50,
             seed=None,
+            fps=24,
             output_file_name=None
     ):
+        height = self.align_dimension(height)
+        width = self.align_dimension(width)
         output_file = self.get_file_name(output_file_name)
         generator = torch.Generator(device=self.device).manual_seed(seed) if seed is not None else None
         video = self.pipeline(
@@ -43,7 +46,7 @@ class LTXVideoModel(BaseVideoModel):
             num_inference_steps=num_inference_steps,
             generator=generator,
         ).frames[0]
-        export_to_video(video, str(output_file), fps=24)
+        export_to_video(video, str(output_file), fps=fps)
         logger.info("Video saved to %s", output_file)
         return output_file
 
@@ -58,8 +61,11 @@ class LTXVideoModel(BaseVideoModel):
             guidance_scale=3.0,
             num_inference_steps=50,
             seed=None,
+            fps=24,
             output_file_name=None
     ):
+        height = self.align_dimension(height)
+        width = self.align_dimension(width)
         i2v_pipeline = LTXImageToVideoPipeline.from_pretrained(
             self.model_id,
             torch_dtype=torch.bfloat16,
@@ -78,6 +84,6 @@ class LTXVideoModel(BaseVideoModel):
             num_inference_steps=num_inference_steps,
             generator=generator,
         ).frames[0]
-        export_to_video(video, str(output_file), fps=24)
+        export_to_video(video, str(output_file), fps=fps)
         logger.info("Video saved to %s", output_file)
         return output_file

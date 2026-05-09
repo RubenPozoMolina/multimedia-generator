@@ -1,4 +1,7 @@
+import logging
 import torch
+
+logger = logging.getLogger(__name__)
 from pathlib import Path
 from datetime import datetime
 
@@ -22,8 +25,9 @@ class BaseImageModel:
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
         return_value = Path(self.output_path) / f"{timestamp}.png"
         if output_file_name:
-            return_value = output_file_name
-        return return_value
+            return_value = Path(output_file_name)
+        return_value.parent.mkdir(parents=True, exist_ok=True)
+        return str(return_value)
 
     def text_to_image(
             self,
@@ -38,7 +42,7 @@ class BaseImageModel:
     ):
         output_file = self.get_file_name(output_file_name)
         generator = torch.Generator(device=self.device).manual_seed(seed) if seed is not None else None
-        if "FLUX" in self.model_id:
+        if "FLUX" in self.model_id or "Qwen" in self.model_id:
             image = self.pipeline(
                 prompt,
                 negative_prompt=negative_prompt,
@@ -85,3 +89,18 @@ class BaseImageModel:
         ).images[0]
         image.save(str(output_file))
         return output_file
+
+    def destroy(self):
+        """
+        Deletes the model and pipeline to free memory.
+        """
+        if self.pipeline:
+            del self.pipeline
+            self.pipeline = None
+        if self.model:
+            del self.model
+            self.model = None
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.ipc_collect()
+        logger.info("Model and pipeline destroyed.")

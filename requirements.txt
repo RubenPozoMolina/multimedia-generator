@@ -1,10 +1,13 @@
-diffusers
+diffusers==0.35.2
 torch
 torchvision
 transformers
 accelerate
+numpy
 Pillow
 pytest
 invisible_watermark
 safetensors
 ftfy
+moviepy
+decorator

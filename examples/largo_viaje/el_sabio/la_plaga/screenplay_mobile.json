@@ -1,0 +1,327 @@
+{
+  "name": "La_Plaga_Edition_v2",
+  "height": 832,
+  "width": 480,
+  "fps": 24,
+  "negative_prompt": "blurry, low quality, deformed, cartoon, anime, text, watermark",
+  "num_inference_steps": 30,
+  "image_model": "Qwen/Qwen-Image",
+  "video_model": "Wan-AI/Wan2.2-I2V-A14B-Diffusers",
+  "common_prompt": "hyper-realistic, dark cinematic, post-apocalyptic atmosphere, dramatic lighting, gritty texture, moody color grade",
+  "audio": "plaga.mp3",
+  "subtitles": "subtitles.json",
+  "scenes": [
+    {
+      "id": 1,
+      "name": "intro_1",
+      "duration": 4,
+      "prompt": "An abandoned office building at dusk, broken windows, a swarm of little flies buzzing around a decomposed body slumped at a desk, warm sickly light filtering through dusty blinds, eerie silence."
+    },
+    {
+      "id": 2,
+      "name": "intro_2",
+      "duration": 4,
+      "prompt": "Close-up of a cluster of flies crawling over a cracked smartphone screen displaying a pulsating green error code, the device lying in dust on a concrete floor, macro lens detail."
+    },
+    {
+      "id": 3,
+      "name": "intro_3",
+      "duration": 4,
+      "prompt": "A fly perched on a server rack in a dark data center, the rack lights flickering erratically in red and green, digital corruption spreading across nearby monitor screens, ominous atmosphere."
+    },
+    {
+      "id": 4,
+      "name": "intro_4",
+      "duration": 4,
+      "prompt": "Macro shot of a smartphone screen showing a self-replicating virus code that pulses and mutates like a living organism, green and black digital tendrils spreading across the display."
+    },
+    {
+      "id": 5,
+      "name": "intro_5",
+      "duration": 4,
+      "prompt": "A Wall Street executive in a glass office staring vacantly at his phone, face pale and expressionless, the glow of the infected screen reflecting in his glassy, unfocused eyes."
+    },
+    {
+      "id": 6,
+      "name": "verse1_1",
+      "duration": 4,
+      "prompt": "The executive standing motionless in a crowded elevator, other passengers giving him nervous glances, his posture unnaturally rigid, the phone still clutched in his hand, screen glowing sickly green."
+    },
+    {
+      "id": 7,
+      "name": "verse1_2",
+      "duration": 4,
+      "prompt": "Security camera footage aesthetic: a lone figure wandering aimlessly through an empty office corridor at night, fluorescent lights flickering, long dark shadow stretching on the floor."
+    },
+    {
+      "id": 8,
+      "name": "verse1_3",
+      "duration": 4,
+      "prompt": "A city street at dusk where several people walk slowly and aimlessly, all staring down at their glowing phones, faces blank, the crowd moving without direction like a slow tide."
+    },
+    {
+      "id": 9,
+      "name": "verse1_4",
+      "duration": 4,
+      "prompt": "Aerial drone shot of a city intersection where all traffic has stopped, cars abandoned mid-road, and dozens of motionless figures stand scattered on the asphalt, long shadows at golden hour."
+    },
+    {
+      "id": 10,
+      "name": "chorus1_1",
+      "duration": 4,
+      "prompt": "The executive standing on a rooftop balcony overlooking the city at night, eyes reflecting the orange glow of distant fires and flickering city lights, an unsettling calm on his face."
+    },
+    {
+      "id": 11,
+      "name": "chorus1_2",
+      "duration": 4,
+      "prompt": "Inside a luxury apartment, a family sits at a dinner table, all four members staring at their phones, food untouched and cold, the only light coming from the screens in the dark room."
+    },
+    {
+      "id": 12,
+      "name": "chorus1_3",
+      "duration": 4,
+      "prompt": "A crowd of blank-faced office workers pressing through a revolving glass door, all moving in the same direction without interacting, like a slow purposeless migration, harsh fluorescent light."
+    },
+    {
+      "id": 13,
+      "name": "chorus1_4",
+      "duration": 4,
+      "prompt": "A luxury smartwatch on a wrist, its screen now displaying the same mutating green virus code as the phone, the owner walking forward without noticing, dark street behind them."
+    },
+    {
+      "id": 14,
+      "name": "verse2_1",
+      "duration": 4,
+      "prompt": "A line of corporate workers in suits shuffling slowly down a hallway, all with the same empty, forward-facing gaze, their phones all displaying the same pulsating green signal."
+    },
+    {
+      "id": 15,
+      "name": "verse2_2",
+      "duration": 4,
+      "prompt": "Close-up of a human eye reflecting a smartphone screen, the pupil dilating unnaturally as the green virus code scrolls across it, a single tear running down the cheek."
+    },
+    {
+      "id": 16,
+      "name": "verse2_3",
+      "duration": 4,
+      "prompt": "A deserted playground at twilight, empty swings moving in the breeze, a small child sitting alone on a bench staring at a tablet, the screen casting a cold green glow on her face."
+    },
+    {
+      "id": 17,
+      "name": "verse2_4",
+      "duration": 4,
+      "prompt": "Aerial shot of a dark highway at night, dozens of cars stopped with headlights on, their owners standing outside staring at their phones, a river of red tail-lights stretching to the horizon."
+    },
+    {
+      "id": 18,
+      "name": "chorus2_1",
+      "duration": 4,
+      "prompt": "The executive standing atop a glass conference table, surrounded by seated board members all facing him with blank expressions, phones lined up on the table all displaying the same code."
+    },
+    {
+      "id": 19,
+      "name": "chorus2_2",
+      "duration": 4,
+      "prompt": "A vast public plaza at night, thousands of people standing still, all holding up glowing phones that together create a sea of green light in the dark, an eerie silent mass."
+    },
+    {
+      "id": 20,
+      "name": "chorus2_3",
+      "duration": 4,
+      "prompt": "Infected individuals turning their heads in unison toward a distant signal tower, all sensing something unseen, their faces slack and eyes dull, cinematic slow motion."
+    },
+    {
+      "id": 21,
+      "name": "chorus2_4",
+      "duration": 4,
+      "prompt": "A network visualization rendered in black and green: digital nodes connected by pulsating threads, the infection spreading from node to node like a neural web, abstract and ominous."
+    },
+    {
+      "id": 22,
+      "name": "verse3_1",
+      "duration": 4,
+      "prompt": "A subway station with a crowd of commuters standing completely still on the stairs and platform, not speaking, not moving, all staring at phones, a lone uninfected person watching in horror."
+    },
+    {
+      "id": 23,
+      "name": "verse3_2",
+      "duration": 4,
+      "prompt": "A hospital corridor where patients in gowns and doctors in scrubs all stand motionless, facing the same direction, lit by cold fluorescent light, the silence broken only by a distant beeping."
+    },
+    {
+      "id": 24,
+      "name": "verse3_3",
+      "duration": 4,
+      "prompt": "Extreme close-up of fingers tapping a smartphone screen rhythmically and compulsively, the skin pale, nails bitten, the motion mechanical and inhuman, loop-like."
+    },
+    {
+      "id": 25,
+      "name": "verse3_4",
+      "duration": 4,
+      "prompt": "A beach at sunset where the shoreline is lined with hundreds of motionless figures facing the sea, all holding phones aloft, their long shadows stretching behind them, haunting and still."
+    },
+    {
+      "id": 26,
+      "name": "chorus3_1",
+      "duration": 4,
+      "prompt": "A convoy of self-driving cars moving in perfect synchronized formation through empty streets at night, their interiors filled with blank-faced passengers lit by green screen glow."
+    },
+    {
+      "id": 27,
+      "name": "chorus3_2",
+      "duration": 4,
+      "prompt": "A corporate boardroom where the executives all sit in perfect stillness, eyes open but vacant, the presentation screen behind them displaying the virus code spreading over a world map."
+    },
+    {
+      "id": 28,
+      "name": "chorus3_3",
+      "duration": 4,
+      "prompt": "Close-up of a hand slowly pressing a power button on a server, the lights dying one by one in a long rack, darkness spreading through the data center, a final act of sabotage."
+    },
+    {
+      "id": 29,
+      "name": "chorus3_4",
+      "duration": 4,
+      "prompt": "Wide shot of the moon visible through a city skyline as the lights of every building begin to go out one by one, the city descending into darkness, only the green glow of phones remaining."
+    },
+    {
+      "id": 30,
+      "name": "bridge_1",
+      "duration": 4,
+      "prompt": "Rapid montage of close-ups: fingers on glass, dilated pupils, flickering server lights, error codes cascading, a power grid map going dark, all cutting in rhythm to a fast pulse."
+    },
+    {
+      "id": 31,
+      "name": "bridge_2",
+      "duration": 4,
+      "prompt": "A nurse standing alone in a dark, empty hospital ward, holding a tablet showing the spreading infection map, her expression shifting from confusion to resigned understanding."
+    },
+    {
+      "id": 32,
+      "name": "bridge_3",
+      "duration": 4,
+      "prompt": "An archive room filled with rows of server drives, each one now showing a blinking green indicator, a vast digital hive awakening, the hum of machines filling the dark silence."
+    },
+    {
+      "id": 33,
+      "name": "bridge_4",
+      "duration": 4,
+      "prompt": "A public fountain in a park at night, its water lit green by submerged LEDs malfunctioning due to the virus, surrounding benches occupied by motionless, phone-staring figures."
+    },
+    {
+      "id": 34,
+      "name": "solo_1",
+      "duration": 4,
+      "prompt": "Timelapse: a network infection visualization expanding explosively across a world map, green threads of contagion consuming entire continents in seconds, unstoppable."
+    },
+    {
+      "id": 35,
+      "name": "solo_2",
+      "duration": 4,
+      "prompt": "The executive standing before a floor-to-ceiling window, the city sprawling dark below him, his reflection in the glass showing his silhouette as a hollow digital ghost, fractured and dissolving."
+    },
+    {
+      "id": 36,
+      "name": "solo_3",
+      "duration": 4,
+      "prompt": "A skyscraper facade at night: the building's LED lighting system corrupted, displaying the spreading virus pattern across its entire surface, visible for miles, a giant infected monolith."
+    },
+    {
+      "id": 37,
+      "name": "solo_4",
+      "duration": 4,
+      "prompt": "An underwater fiber optic cable visualized as a glowing thread in the ocean deep, the virus code traveling through it as a visible pulse of green light crossing the Atlantic floor."
+    },
+    {
+      "id": 38,
+      "name": "verse_reprise_1",
+      "duration": 4,
+      "prompt": "The executive's assistant, now infected, walking with mechanical precision through an empty office, straightening objects with compulsive exactness, her face utterly expressionless."
+    },
+    {
+      "id": 39,
+      "name": "verse_reprise_2",
+      "duration": 4,
+      "prompt": "A clean modern desk with a laptop open to the virus dashboard, its spread map now entirely green, the user sitting back motionless in the chair, hands folded, waiting for nothing."
+    },
+    {
+      "id": 40,
+      "name": "verse_reprise_3",
+      "duration": 4,
+      "prompt": "A circle of people sitting cross-legged on the floor of an office, all facing inward with phones in their laps, all connected to the same glowing network, swaying slightly in unison."
+    },
+    {
+      "id": 41,
+      "name": "verse_reprise_4",
+      "duration": 4,
+      "prompt": "An elevator door closing with a single hand visible at the edge, then gone. The floor indicator descends slowly to a basement level that doesn't exist on the panel, and stops."
+    },
+    {
+      "id": 42,
+      "name": "final_chorus_1",
+      "duration": 4,
+      "prompt": "A stadium filled to capacity with completely still, silent people, all looking at a central screen displaying the virus code, the scale of the infection shown in terrifying, quiet enormity."
+    },
+    {
+      "id": 43,
+      "name": "final_chorus_2",
+      "duration": 4,
+      "prompt": "A dark city street in heavy rain, the few uninfected humans running between pools of green-tinted light from malfunctioning streetlamps, the infected standing still in the downpour."
+    },
+    {
+      "id": 44,
+      "name": "final_chorus_3",
+      "duration": 4,
+      "prompt": "The executive standing at the rim of an empty Olympic pool, now filled only with thousands of discarded, drowned smartphones, all screens still glowing faintly green in the dark."
+    },
+    {
+      "id": 45,
+      "name": "final_chorus_4",
+      "duration": 4,
+      "prompt": "Extreme close-up of the executive's mouth as he speaks a single word into the air, no sound coming out, the word visible only as distortion in the air, like a silent transmission."
+    },
+    {
+      "id": 46,
+      "name": "outro_1",
+      "duration": 4,
+      "prompt": "A cracked smartphone lying in the gutter of an empty street, its screen dark, a single green pixel blinking in the corner like a heartbeat, refusing to die."
+    },
+    {
+      "id": 47,
+      "name": "outro_2",
+      "duration": 4,
+      "prompt": "A forest at dawn, completely quiet, birds gone, leaves still, the only sound the distant hum of a transmission tower visible through the trees, its red warning light blinking alone."
+    },
+    {
+      "id": 48,
+      "name": "outro_3",
+      "duration": 4,
+      "prompt": "A vast empty desert landscape at dusk, a single cell phone tower standing on the horizon, a green light blinking at its peak, wind blowing sand across the barren ground in silence."
+    },
+    {
+      "id": 49,
+      "name": "outro_4",
+      "duration": 4,
+      "prompt": "A satellite view of Earth at night: the lights of cities fading out one by one, replaced by nothing, the planet going dark except for isolated green pulses from remaining signal nodes."
+    },
+    {
+      "id": 50,
+      "name": "outro_5",
+      "duration": 4,
+      "prompt": "A grainy, degraded video recording of a family sitting at a table, smiling, phones away, then the recording glitches and freezes: the last moment before the infection reached them."
+    },
+    {
+      "id": 51,
+      "name": "outro_6",
+      "duration": 4,
+      "prompt": "A black screen with a single green cursor blinking in the center, then the virus code begins to self-type slowly, methodically, filling the screen line by line, patient and unstoppable."
+    },
+    {
+      "id": 52,
+      "name": "outro_7",
+      "duration": 4,
+      "prompt": "Final shot: the same abandoned office from scene 1, flies buzzing in the stale air, the cracked smartphone in the dust still blinking that single green pixel, the title 'LA PLAGA' appearing in cold digital text on the dark screen."
+    }
+  ]
+}

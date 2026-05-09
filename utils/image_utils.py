@@ -3,6 +3,7 @@ import logging
 from utils.image_models.base_image_model import BaseImageModel
 from utils.image_models.flux_model import FluxModel
 from utils.image_models.qwen_image_edit_model import QwenImageEditModel
+from utils.image_models.qwen_image_model import QwenImageModel
 from utils.image_models.sdxl_model import SDXLModel
 from utils.image_models.stable_difusion_model import StableDiffusionModel
 
@@ -38,6 +39,11 @@ models = [
         "name": "Qwen/Qwen-Image-Edit",
         "model_class": QwenImageEditModel,
         "functionality": ["i2i"]
+    },
+    {
+        "name": "Qwen/Qwen-Image",
+        "model_class": QwenImageModel,
+        "functionality": ["t2i"]
     }
 ]
 
@@ -106,3 +112,12 @@ class ImageUtils:
             output_file_name=output_path
         )
         return str(output_file)
+
+    def destroy(self):
+        """
+        Destroys the model and frees memory.
+        """
+        if self.model:
+            self.model.destroy()
+            del self.model
+            self.model = None
