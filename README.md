@@ -184,3 +184,4 @@ python scripts/create_video_from_screenplay.py \
   --screenplay examples/largo_viaje/el_sabio/la_plaga/screenplay.json \
   --output output/la_plaga
 ```
+You can see the result here: [La Plaga Music Video](https://youtu.be/ZfqbFIOXRTs?si=CJCsruSkxdxnZbcA)
