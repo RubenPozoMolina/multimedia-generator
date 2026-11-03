@@ -1,11 +1,6 @@
 import logging
 
 import torch
-from diffusers import FlowMatchEulerDiscreteScheduler
-from diffusers.pipelines.ltx2 import LTX2Pipeline, LTX2LatentUpsamplePipeline
-from diffusers.pipelines.ltx2.latent_upsampler import LTX2LatentUpsamplerModel
-from diffusers.pipelines.ltx2.utils import STAGE_2_DISTILLED_SIGMA_VALUES
-from diffusers.pipelines.ltx2.export_utils import encode_video
 
 from utils.video_models.base_video_model import BaseVideoModel
 
@@ -23,9 +18,27 @@ class LTX2Model(BaseVideoModel):
     def __init__(self, model_id=None, output_path="output"):
         super().__init__(model_id, output_path)
         self.upsample_pipeline = None
+        self._flow_match_scheduler = None
+        self._stage_2_sigmas = None
+        self._encode_video = None
 
     def load_model(self, model_id: str):
+        try:
+            from diffusers import FlowMatchEulerDiscreteScheduler
+            from diffusers.pipelines.ltx2 import LTX2Pipeline, LTX2LatentUpsamplePipeline
+            from diffusers.pipelines.ltx2.export_utils import encode_video
+            from diffusers.pipelines.ltx2.latent_upsampler import LTX2LatentUpsamplerModel
+            from diffusers.pipelines.ltx2.utils import STAGE_2_DISTILLED_SIGMA_VALUES
+        except ImportError as error:
+            raise RuntimeError(
+                "LTX-2 requires a diffusers installation that includes the "
+                "diffusers.pipelines.ltx2 package."
+            ) from error
+
         self.model_id = model_id
+        self._flow_match_scheduler = FlowMatchEulerDiscreteScheduler
+        self._stage_2_sigmas = STAGE_2_DISTILLED_SIGMA_VALUES
+        self._encode_video = encode_video
         self.pipeline = LTX2Pipeline.from_pretrained(
             self.model_id,
             torch_dtype=torch.bfloat16,
@@ -92,7 +105,7 @@ class LTX2Model(BaseVideoModel):
         self.pipeline.vae.enable_tiling()
 
         original_scheduler = self.pipeline.scheduler
-        self.pipeline.scheduler = FlowMatchEulerDiscreteScheduler.from_config(
+        self.pipeline.scheduler = self._flow_match_scheduler.from_config(
             self.pipeline.scheduler.config,
             use_dynamic_shifting=False,
             shift_terminal=None,
@@ -104,8 +117,8 @@ class LTX2Model(BaseVideoModel):
             prompt=prompt,
             negative_prompt=negative_prompt,
             num_inference_steps=self.STAGE_2_INFERENCE_STEPS,
-            noise_scale=STAGE_2_DISTILLED_SIGMA_VALUES[0],
-            sigmas=STAGE_2_DISTILLED_SIGMA_VALUES,
+            noise_scale=self._stage_2_sigmas[0],
+            sigmas=self._stage_2_sigmas,
             guidance_scale=self.STAGE_2_GUIDANCE_SCALE,
             output_type="np",
             return_dict=False,
@@ -158,8 +171,13 @@ class LTX2Model(BaseVideoModel):
             num_inference_steps=40,
             seed=None,
             fps=24,
-            output_file_name=None
+            output_file_name=None,
+            last_image=None
     ):
+        if last_image is not None:
+            raise NotImplementedError(
+                "LTX-2 does not support conditioning on a final image."
+            )
         height = self.align_dimension(height)
         width = self.align_dimension(width)
         output_file = self.get_file_name(output_file_name)
@@ -185,7 +203,7 @@ class LTX2Model(BaseVideoModel):
 
     def _save_video_with_audio(self, video, audio, output_file, fps=24):
         audio_sample_rate = self.pipeline.vocoder.config.output_sampling_rate
-        encode_video(
+        self._encode_video(
             video,
             fps=fps,
             audio=audio.float().cpu(),

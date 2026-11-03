@@ -10,7 +10,7 @@ from moviepy import AudioFileClip, VideoFileClip, concatenate_videoclips, Compos
 
 from utils.video_models.base_video_model import BaseVideoModel
 from utils.video_models.ltx_video_model import LTXVideoModel
-# from utils.video_models.ltx2_model import LTX2Model
+from utils.video_models.ltx2_model import LTX2Model
 from utils.video_models.wan_model import WanModel
 
 logger = logging.getLogger(__name__)
@@ -20,10 +20,10 @@ models = [
         "name": "Lightricks/LTX-Video",
         "model_class": LTXVideoModel
     },
-    # {
-    #     "name": "Lightricks/LTX-2",
-    #     "model_class": LTX2Model
-    # },
+    {
+        "name": "Lightricks/LTX-2",
+        "model_class": LTX2Model
+    },
     {
         "name": "Wan-AI/Wan2.2-I2V-A14B-Diffusers",
         "model_class": WanModel
@@ -86,21 +86,23 @@ class VideoUtils:
             num_inference_steps=50,
             seed=None,
             fps=24,
-            output_path=None
+            output_path=None,
+            last_image=None,
     ):
-        output_file = self.model.image_to_video(
-            image,
-            prompt,
-            negative_prompt=negative_prompt,
-            height=height,
-            width=width,
-            num_frames=num_frames,
-            guidance_scale=guidance_scale,
-            num_inference_steps=num_inference_steps,
-            seed=seed,
-            fps=fps,
-            output_file_name=output_path
-        )
+        kwargs = {
+            "negative_prompt": negative_prompt,
+            "height": height,
+            "width": width,
+            "num_frames": num_frames,
+            "guidance_scale": guidance_scale,
+            "num_inference_steps": num_inference_steps,
+            "seed": seed,
+            "fps": fps,
+            "output_file_name": output_path,
+        }
+        if last_image is not None:
+            kwargs["last_image"] = last_image
+        output_file = self.model.image_to_video(image, prompt, **kwargs)
         return str(output_file)
 
     def destroy(self):

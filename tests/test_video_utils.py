@@ -114,6 +114,60 @@ class TestVideoUtils:
         assert result == "output/video.mp4"
         mock_model.image_to_video.assert_called_once()
 
+    def test_image_to_video_forwards_optional_last_image(self):
+        video_utils = VideoUtils.__new__(VideoUtils)
+        mock_model = MagicMock(spec=WanModel)
+        mock_model.image_to_video.return_value = "output/video.mp4"
+        video_utils.model = mock_model
+        last_image = MagicMock()
+
+        video_utils.image_to_video("start", "prompt", last_image=last_image)
+
+        assert mock_model.image_to_video.call_args.kwargs["last_image"] is last_image
+
+    def test_image_to_video_omits_last_image_when_not_provided(self):
+        video_utils = VideoUtils.__new__(VideoUtils)
+        mock_model = MagicMock(spec=WanModel)
+        mock_model.image_to_video.return_value = "output/video.mp4"
+        video_utils.model = mock_model
+
+        video_utils.image_to_video("start", "prompt")
+
+        assert "last_image" not in mock_model.image_to_video.call_args.kwargs
+
+    def test_ltx_rejects_final_image_conditioning(self):
+        model = LTXVideoModel.__new__(LTXVideoModel)
+
+        with pytest.raises(NotImplementedError, match="final image"):
+            model.image_to_video("start", "prompt", last_image="end")
+
+    def test_wan_resizes_last_image_and_aligns_frame_count(self):
+        from PIL import Image
+
+        model = WanModel.__new__(WanModel)
+        model.device = "cpu"
+        model.pipeline = MagicMock()
+        model.pipeline.vae_scale_factor_spatial = 8
+        model.pipeline.transformer.config.patch_size = (1, 2, 2)
+        model.pipeline.return_value.frames = [["frame"]]
+        start = Image.new("RGB", (64, 32))
+        end = Image.new("RGB", (32, 64))
+
+        with patch("utils.video_models.wan_model.export_to_video"):
+            model.image_to_video(
+                start,
+                "prompt",
+                last_image=end,
+                height=64,
+                width=128,
+                num_frames=80,
+                output_file_name="output/video.mp4",
+            )
+
+        kwargs = model.pipeline.call_args.kwargs
+        assert kwargs["last_image"].size == kwargs["image"].size
+        assert kwargs["num_frames"] == 81
+
     def test_concatenate_videos_raises_on_empty_list(self):
         with pytest.raises(ValueError, match="No video paths provided"):
             VideoUtils.concatenate_videos([], "output/final.mp4")
@@ -134,7 +188,9 @@ class TestVideoUtils:
         result = VideoUtils.concatenate_videos(["a.mp4", "b.mp4"], output_file)
 
         assert mock_vfc.call_count == 2
-        mock_concat.assert_called_once_with([mock_clip_1, mock_clip_2])
+        mock_concat.assert_called_once_with(
+            [mock_clip_1, mock_clip_2], method="compose"
+        )
         mock_final.write_videofile.assert_called_once_with(output_file, fps=30, logger=None)
         assert result == output_file
         mock_clip_1.close.assert_called_once()

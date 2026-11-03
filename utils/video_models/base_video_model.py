@@ -64,7 +64,8 @@ class BaseVideoModel:
             num_inference_steps=50,
             seed=None,
             fps=24,
-            output_file_name=None
+            output_file_name=None,
+            last_image=None
     ):
         raise NotImplementedError("image_to_video method must be implemented in the child class.")
 

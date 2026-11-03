@@ -50,6 +50,7 @@ models = [
 
 class ImageUtils:
     model = BaseImageModel()
+    _instances = {}
 
     def get_model(self, model_id, output_path="output") -> BaseImageModel:
         for model_entry in models:
@@ -59,9 +60,20 @@ class ImageUtils:
         raise ValueError(f"Model {model_id} not found in the list of supported models.")
 
     def __init__(self, model_id, output_path="output"):
+        cache_key = (model_id, output_path)
+        cached_instance = ImageUtils._instances.get(cache_key)
+        if cached_instance is not None:
+            # Reuse the loaded pipeline so creating one helper per scene does
+            # not reload the model weights every time.
+            self.model = cached_instance.model
+            self._cache_key = cache_key
+            return
+
         try:
             self.model = self.get_model(model_id, output_path=output_path)
             self.model.load_model(model_id)
+            self._cache_key = cache_key
+            ImageUtils._instances[cache_key] = self
         except Exception as e:
             logger.error(f"Error loading model: {e}")
 
@@ -118,6 +130,11 @@ class ImageUtils:
         Destroys the model and frees memory.
         """
         if self.model:
-            self.model.destroy()
+            if hasattr(self.model, "destroy"):
+                self.model.destroy()
             del self.model
             self.model = None
+
+        cache_key = getattr(self, "_cache_key", None)
+        if cache_key is not None:
+            ImageUtils._instances.pop(cache_key, None)

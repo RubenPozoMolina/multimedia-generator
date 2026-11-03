@@ -47,26 +47,35 @@ class WanModel(BaseVideoModel):
             num_inference_steps=40,
             seed=None,
             fps=24,
-            output_file_name=None
+            output_file_name=None,
+            last_image=None,
     ):
+        num_frames = max(5, 4 * round((int(num_frames) - 1) / 4) + 1)
         max_area = height * width
         aspect_ratio = image.height / image.width
         mod_value = self.pipeline.vae_scale_factor_spatial * self.pipeline.transformer.config.patch_size[1]
         height = round(np.sqrt(max_area * aspect_ratio)) // mod_value * mod_value
         width = round(np.sqrt(max_area / aspect_ratio)) // mod_value * mod_value
         image = image.resize((width, height))
+        if last_image is not None:
+            last_image = last_image.resize((width, height))
         output_file = self.get_file_name(output_file_name)
         generator = torch.Generator(device=self.device).manual_seed(seed) if seed is not None else None
+        pipeline_kwargs = {
+            "image": image,
+            "prompt": prompt,
+            "negative_prompt": negative_prompt,
+            "height": height,
+            "width": width,
+            "num_frames": num_frames,
+            "guidance_scale": guidance_scale,
+            "num_inference_steps": num_inference_steps,
+            "generator": generator,
+        }
+        if last_image is not None:
+            pipeline_kwargs["last_image"] = last_image
         video = self.pipeline(
-            image=image,
-            prompt=prompt,
-            negative_prompt=negative_prompt,
-            height=height,
-            width=width,
-            num_frames=num_frames,
-            guidance_scale=guidance_scale,
-            num_inference_steps=num_inference_steps,
-            generator=generator,
+            **pipeline_kwargs,
         ).frames[0]
         export_to_video(video, str(output_file), fps=fps)
         logger.info("Video saved to %s", output_file)

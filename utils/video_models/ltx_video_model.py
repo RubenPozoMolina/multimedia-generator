@@ -62,8 +62,13 @@ class LTXVideoModel(BaseVideoModel):
             num_inference_steps=50,
             seed=None,
             fps=24,
-            output_file_name=None
+            output_file_name=None,
+            last_image=None
     ):
+        if last_image is not None:
+            raise NotImplementedError(
+                "LTX-Video does not support conditioning on a final image."
+            )
         height = self.align_dimension(height)
         width = self.align_dimension(width)
         i2v_pipeline = LTXImageToVideoPipeline.from_pretrained(
