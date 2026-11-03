@@ -1,0 +1,54 @@
+{
+  "name": "Cerveza_Troll_Tavern_Test",
+  "width": 832,
+  "height": 480,
+  "fps": 16,
+  "anchor_interval": 12,
+  "animation_mode": "video",
+  "video_model": "Wan-AI/Wan2.2-I2V-A14B-Diffusers",
+  "video_guidance_scale": 5.0,
+  "video_num_inference_steps": 40,
+  "video_max_frames": 81,
+  "negative_prompt": "photorealistic, live action, anime, flat 2D, cute childish style, modern city, text, letters, watermark, logo, blurry, low quality, deformed hands, extra fingers, extra limbs, duplicate characters, inconsistent character design",
+  "num_inference_steps": 24,
+  "true_cfg_scale": 4.0,
+  "character_image_model": "Qwen/Qwen-Image",
+  "frame_image_model": "Qwen/Qwen-Image-Edit",
+  "character_num_inference_steps": 30,
+  "character_guidance_scale": 7.5,
+  "style_prompt": "Gritty 3D animated dark fantasy comedy, heavy metal music video aesthetic, stylized exaggerated characters, cinematic volumetric lighting, amber firelight, emerald beer glow, film grain, vignette, highly detailed",
+  "characters": [
+    {
+      "name": "Monk",
+      "description": "a skinny young bald human monk, an ordinary human man (not a troll, not a goblin), with pale peach human skin, small round human ears, a small human nose, normal human teeth and no tusks, big innocent eyes, a plain brown hooded robe and a rope belt, no armor, no leather vest",
+      "views": [
+        "front view"
+      ],
+      "seed": 42,
+      "negative_prompt": "troll, goblin, orc, ogre, elf, green skin, grey skin, pointed ears, long ears, tusks, underbite, fangs, leather vest, studs, spikes, wristbands, armor"
+    },
+    {
+      "name": "Bartender",
+      "description": "a massive moss-green troll bartender with a prominent underbite, cracked tusks, a braided beard full of beer caps, a black leather vest and studded wristbands, chunky troll body, leather and studs",
+      "views": [
+        "front view"
+      ],
+      "seed": 43
+    }
+  ],
+  "scenes": [
+    {
+      "id": 1,
+      "name": "monk_meets_bartender",
+      "duration": 2,
+      "prompt": "Inside the troll tavern, the skinny bald human monk with pale human skin and a brown hooded robe stands at the bar holding a small empty wooden mug while the massive moss-green troll bartender leans over the counter and pours glowing emerald beer from a huge barrel, warm amber firelight, smoke, shelves of skull-shaped mugs behind them.",
+      "motion_prompt": "The bartender tilts the barrel and emerald beer starts foaming into the monk's mug while the monk watches with wide innocent eyes.",
+      "end_prompt": "The monk's wooden mug is full to the brim with foaming glowing emerald beer, the bartender holds the tilted barrel above it and grins with his underbite, the monk smiles with wide happy eyes.",
+      "characters": [
+        "Monk",
+        "Bartender"
+      ],
+      "seed": 2000
+    }
+  ]
+}

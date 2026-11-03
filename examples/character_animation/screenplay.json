@@ -1,0 +1,82 @@
+{
+  "name": "Lantern_Keeper",
+  "width": 832,
+  "height": 480,
+  "fps": 24,
+  "anchor_interval": 12,
+  "animation_mode": "video",
+  "video_model": "Wan-AI/Wan2.2-I2V-A14B-Diffusers",
+  "video_max_frames": 81,
+  "negative_prompt": "photorealistic, live action, anime, flat 2D, text, letters, watermark, logo, blurry, low quality, deformed hands, extra fingers, extra limbs, duplicate characters, inconsistent character design",
+  "num_inference_steps": 24,
+  "true_cfg_scale": 4.0,
+  "character_image_model": "Qwen/Qwen-Image",
+  "frame_image_model": "Qwen/Qwen-Image-Edit",
+  "style_prompt": "Gritty 3D animated dark fantasy comedy, stylized exaggerated characters, cinematic volumetric lighting, deep forest greens, amber firelight, film grain, vignette, highly detailed",
+  "characters": [
+    {
+      "name": "Keeper",
+      "description": "a skinny young bald monk with big innocent eyes, a brown hooded robe and a rope belt, carrying a small lantern",
+      "views": ["front view", "three-quarter view"],
+      "seed": 42
+    },
+    {
+      "name": "Bartender",
+      "description": "a massive moss-green troll bartender with a prominent underbite, cracked tusks, a braided beard full of beer caps, a black leather vest and studded wristbands",
+      "views": ["front view"],
+      "seed": 43
+    },
+    {
+      "name": "Guitarist",
+      "description": "a lean red-skinned troll guitarist with long greasy black hair, a black leather vest and a bone-and-oak electric guitar",
+      "views": ["front view"],
+      "seed": 44
+    }
+  ],
+  "scenes": [
+    {
+      "name": "Forest arrival",
+      "duration": 3,
+      "prompt": "an ancient dark forest at night, twisted roots and glowing fireflies, the monk walking alone along a twisting path",
+      "motion_prompt": "the monk walks forward cautiously, lantern swinging, fireflies drifting around him",
+      "end_prompt": "the monk pauses at the edge of the clearing, lifting the lantern to inspect the tavern lights",
+      "characters": ["Keeper"],
+      "seed": 100
+    },
+    {
+      "name": "Tavern reveal",
+      "duration": 4,
+      "prompt": "the monk pushes giant ferns aside and discovers a tavern built inside a colossal hollow tree, glowing amber windows and a smoking chimney",
+      "motion_prompt": "the monk pushes the ferns aside and steps into the clearing as the tavern is revealed",
+      "end_prompt": "the monk stands clear of the ferns, gazing up at the fully revealed tavern",
+      "characters": ["Keeper"],
+      "seed": 101
+    },
+    {
+      "name": "First mug",
+      "duration": 4,
+      "prompt": "inside the warm smoky tavern, the troll bartender slides a giant mug of golden beer toward the tiny monk at a barrel table",
+      "motion_prompt": "the bartender slides the mug forward while the monk leans in with wide eyes",
+      "end_prompt": "the mug rests in front of the monk, who reaches toward it as the bartender smiles",
+      "characters": ["Keeper", "Bartender"],
+      "seed": 102
+    },
+    {
+      "name": "Guitar solo",
+      "duration": 3,
+      "prompt": "the red-skinned troll guitarist leans back and shreds a bone-and-oak guitar on a stage made of skulls and barrels, sparks flying",
+      "motion_prompt": "the guitarist leans back, hair whipping, fingers flying over the fretboard",
+      "end_prompt": "the guitarist finishes the solo with the guitar raised and sparks bursting around the stage",
+      "characters": ["Guitarist"],
+      "seed": 103
+    },
+    {
+      "name": "Moonlit forest",
+      "duration": 2,
+      "prompt": "wide shot of the colossal hollow-tree tavern glowing in the dark forest under a giant full moon, fireflies swirling",
+      "end_prompt": "the fireflies sweep around the tavern windows beneath the moon",
+      "characters": [],
+      "seed": 104
+    }
+  ]
+}
