@@ -203,6 +203,18 @@ python scripts/create_video_from_screenplay.py \
 The creative script and shot breakdown are documented in
 [examples/largo_viaje/el_sabio/cerveza/guion.md](examples/largo_viaje/el_sabio/cerveza/guion.md).
 
+Generate the full Cerveza song in vertical 9:16 format (480x832) for
+Shorts/Reels, ready to be trimmed afterwards:
+
+```bash
+scripts/create_cerveza_vertical.sh
+```
+
+Use `scripts/create_cerveza_vertical.sh --dry-run` to review the 49-scene plan
+without loading models. It uses `screenplay_characters_vertical.json` and
+`subtitles_vertical.json` (subtitles raised to stay clear of the Shorts UI) in
+`examples/largo_viaje/el_sabio/cerveza/`.
+
 ### Character-Consistent Animation
 
 The classic pipeline generates one video chunk per scene, which can make
