@@ -1,309 +1,575 @@
 {
-  "name": "Cerveza_Troll_Tavern",
-  "height": 480,
+  "name": "Cerveza_El_Sabio",
   "width": 832,
-  "fps": 24,
-  "negative_prompt": "photorealistic, live action, realistic human, anime, flat 2D, cute childish style, modern city, text, letters, watermark, logo, blurry, low quality, deformed hands, extra fingers, extra limbs, duplicate characters, inconsistent character design",
-  "num_inference_steps": 30,
-  "image_model": "Qwen/Qwen-Image",
+  "height": 480,
+  "fps": 16,
+  "anchor_interval": 12,
+  "animation_mode": "video",
   "video_model": "Wan-AI/Wan2.2-I2V-A14B-Diffusers",
-  "common_prompt": " Gritty 3D animated dark fantasy comedy, heavy metal music video aesthetic, stylized exaggerated characters, chunky trolls, leather vests and studs, cinematic volumetric lighting, deep forest greens, amber firelight, emerald beer glow, film grain, vignette, highly detailed",
+  "video_guidance_scale": 5.0,
+  "video_num_inference_steps": 40,
+  "video_max_frames": 81,
+  "negative_prompt": "photorealistic, live action, anime, flat 2D, cute childish style, modern city, text, letters, watermark, logo, blurry, low quality, deformed hands, extra fingers, extra limbs, duplicate named characters, face swap, facial morphing, sudden aging, hairstyle change, costume change, species change, identity drift, inconsistent character design, green beer, emerald beer, green liquid, green foam, green-tinted beer, green highlights on beer",
+  "num_inference_steps": 24,
+  "true_cfg_scale": 4.0,
+  "character_input": "input/characters.json",
+  "character_image_model": "Qwen/Qwen-Image",
+  "frame_image_model": "Qwen/Qwen-Image-Edit",
+  "character_num_inference_steps": 30,
+  "character_guidance_scale": 7.5,
+  "style_prompt": "Gritty 3D animated dark fantasy comedy, heavy metal music video aesthetic, stylized exaggerated but recognizable characters, cinematic volumetric lighting, amber firelight, warm amber beer glow, beer colors strictly golden blonde, toasted amber and deep black stout, film grain, vignette, highly detailed",
   "audio": "Cerveza.mp3",
   "subtitles": "subtitles.json",
+  "characters": [
+    {
+      "name": "Monk",
+      "description": "the traveling monk and protagonist, with the exact face, hair, body and brown habit shown in the supplied Monk reference",
+      "views": ["front view"],
+      "seed": 42,
+      "negative_prompt": "troll, goblin, orc, ogre, elf, green skin, pointed ears, tusks, underbite, fangs, armor, leather vest"
+    },
+    {
+      "name": "Axel",
+      "description": "the group's drummer, with the exact face, hair, body and clothing shown in the supplied Axel reference",
+      "views": ["front view"],
+      "seed": 43
+    },
+    {
+      "name": "BarTender",
+      "description": "the friendly professional bartender, with the exact face, hair, body and clothing shown in the supplied BarTender reference",
+      "views": ["front view"],
+      "seed": 44
+    },
+    {
+      "name": "Druid",
+      "description": "the elderly druid and brewing mentor, with the exact face, beard, body, green robes and wooden staff shown in the supplied Druid reference",
+      "views": ["front view"],
+      "seed": 45
+    },
+    {
+      "name": "Patricia",
+      "description": "the group's violinist, with the exact face, hair, body and clothing shown in the supplied Patricia reference",
+      "views": ["front view"],
+      "seed": 46
+    },
+    {
+      "name": "Pedro",
+      "description": "the group's bassist, with the exact face, hair, body and clothing shown in the supplied Pedro reference",
+      "views": ["front view"],
+      "seed": 47
+    },
+    {
+      "name": "Prima",
+      "description": "the group's energetic lead vocalist, with the exact face, hair, body and clothing shown in the supplied Prima reference",
+      "views": ["front view"],
+      "seed": 48
+    },
+    {
+      "name": "Rubo",
+      "description": "the group's second guitarist, with the exact face, hair, body and clothing shown in the supplied Rubo reference",
+      "views": ["front view"],
+      "seed": 49
+    },
+    {
+      "name": "Saul",
+      "description": "the group's lead guitarist, with the exact face, hair, body and clothing shown in the supplied Saul reference",
+      "views": ["front view"],
+      "seed": 50
+    }
+  ],
   "scenes": [
     {
       "id": 1,
       "name": "intro_forest",
       "duration": 4,
-      "prompt": "Wide establishing shot of an ancient dark forest at night, the skinny bald monk in a brown hooded robe and rope belt walking alone along a twisting path of giant roots, holding a small lantern, twisted trees, thick mist, glowing fireflies, shafts of moonlight, ominous fairy-tale atmosphere."
+      "prompt": "Wide establishing shot of an ancient dark forest at night. Monk walks alone along a twisting path of giant roots, holding a small lantern; twisted trees, thick mist, glowing fireflies and shafts of moonlight.",
+      "motion_prompt": "Monk walks forward along the root path and raises his lantern to look into the mist.",
+      "end_prompt": "Monk has walked deeper along the same path and stops with his lantern raised, looking ahead into the mist.",
+      "characters": ["Monk"],
+      "seed": 1000,
+      "negative_prompt": "two monks, duplicate monk, second monk, another monk, twin monk"
     },
     {
       "id": 2,
       "name": "intro_lost",
       "duration": 4,
-      "prompt": "Close-up of the lost monk's worried face lit by his lantern, holding a torn map, gnarled branches around him shaped like grasping claws, distant warm amber light glowing between the trees, dark fantasy forest."
+      "prompt": "Close-up of lost Monk's worried face lit by his lantern. He holds a torn map, with gnarled branches around him and distant warm amber light between the trees.",
+      "motion_prompt": "Monk lowers the map slightly and turns his head toward the distant amber light.",
+      "end_prompt": "Monk holds the lowered map and looks toward the amber light with a hopeful expression, in the same close-up.",
+      "characters": ["Monk"],
+      "seed": 1001,
+      "negative_prompt": "two monks, duplicate monk, second monk, another monk, twin monk"
     },
     {
       "id": 3,
       "name": "intro_tavern_reveal",
       "duration": 4,
-      "prompt": "The monk pushes aside giant ferns and discovers a massive tavern built inside a colossal hollow tree, glowing amber windows, a smoking chimney, roots like pillars, a carved wooden sign shaped like a foaming beer mug, magical fireflies, wide reveal shot."
+      "prompt": "Monk pushes aside giant ferns and discovers a massive tavern inside a colossal hollow tree, with glowing amber windows, a smoking chimney and a carved sign shaped like a foaming mug.",
+      "motion_prompt": "Monk parts the ferns and takes one amazed step toward the hollow-tree tavern.",
+      "end_prompt": "The ferns are fully parted and Monk stands still, staring up at the glowing tavern with his mouth open.",
+      "characters": ["Monk"],
+      "seed": 1002,
+      "negative_prompt": "two monks, duplicate monk, second monk, another monk, twin monk"
     },
     {
       "id": 4,
       "name": "intro_peek",
       "duration": 4,
-      "prompt": "The monk peeks through the tavern door: inside, a troll rock band performs on a stage made of skulls and barrels, a red-skinned troll guitarist with a bone guitar, a fat drummer in an iron helmet, amps made of tree stumps, a crowd of chunky green trolls in leather vests raising mugs, warm firelight and smoke."
+      "prompt": "Monk peeks through the tavern door at the band on a stage of barrels: Prima sings, Saul plays lead guitar, Rubo plays second guitar, Pedro plays bass, Axel plays drums and Patricia plays violin. Warm firelight, smoke and a cheering fantasy crowd.",
+      "motion_prompt": "The door opens wider as Monk leans in and the band plays the final beat of the phrase.",
+      "end_prompt": "The tavern door is half open, Monk leans in with wide eyes, and the six musicians hold an energetic final chord on stage.",
+      "characters": ["Monk", "Prima", "Saul", "Rubo", "Pedro", "Axel", "Patricia"],
+      "seed": 1003
     },
     {
       "id": 5,
       "name": "intro_cerveza_roar",
       "duration": 4,
-      "prompt": "The tavern erupts in a wild cheer, chunky green trolls in leather vests thrust giant foaming mugs into the air, the startled monk stands in the doorway, beer foam splashing, stage lights flaring red and green, dynamic low-angle shot."
+      "prompt": "The tavern erupts in a wild cheer. Monk stands startled in the doorway while Prima and Pedro raise giant foaming mugs with the crowd, beer foam splashing under red and amber stage lights.",
+      "motion_prompt": "Prima and Pedro lift their mugs with the crowd while Monk raises his hands in surprise.",
+      "end_prompt": "Prima, Pedro and the crowd hold their mugs high, and Monk stands frozen in the doorway with his hands raised.",
+      "characters": ["Monk", "Prima", "Pedro"],
+      "seed": 1004
     },
     {
       "id": 6,
       "name": "intro_bartender",
       "duration": 4,
-      "prompt": "The massive moss-green troll bartender with an underbite, cracked tusks, a braided beard full of beer caps, a black leather vest and studded wristbands pours golden beer from a huge oak barrel into a giant mug, foam overflowing, the tiny monk watches in awe, warm amber light."
+      "prompt": "BarTender pours golden beer from a huge oak barrel into a giant mug behind the bar, foam overflowing, while Monk watches in awe in warm amber light.",
+      "motion_prompt": "BarTender finishes pouring, sets the barrel down and smiles at Monk.",
+      "end_prompt": "The giant mug is full and overflowing with white foam; BarTender has set down the barrel and grins at amazed Monk.",
+      "characters": ["Monk", "BarTender"],
+      "seed": 1005
     },
     {
       "id": 7,
       "name": "intro_first_mug",
       "duration": 4,
-      "prompt": "The tiny monk sits at a barrel table, dwarfed by huge trolls in leather vests, the troll bartender slides a giant mug of golden beer toward him, the monk's wide eyes reflect the glowing beer, cozy smoky tavern, low camera angle."
+      "prompt": "Monk sits at a barrel table while BarTender slides a giant mug of golden beer toward him. Pedro sits beside Monk and raises his own mug in the cozy smoky tavern.",
+      "motion_prompt": "The mug slides to Monk, who takes its handle with both hands as Pedro smiles.",
+      "end_prompt": "Monk holds the giant mug with both hands, eyes shining, while BarTender and Pedro watch him warmly.",
+      "characters": ["Monk", "BarTender", "Pedro"],
+      "seed": 1006
     },
     {
       "id": 8,
       "name": "verse1_first_gulp",
       "duration": 4,
-      "prompt": "The monk takes a huge gulp from the giant mug, thick foam mustache on his face, eyes wide with delight, trolls around him grin and raise their own mugs, warm golden light, close-up."
+      "prompt": "Close-up of Monk taking his first huge gulp from the giant mug of golden beer, with warm tavern light and cheering patrons softly visible behind him.",
+      "motion_prompt": "Monk lowers the mug after a gulp, revealing a foam moustache and a delighted smile.",
+      "end_prompt": "Monk holds the lowered mug, with a thick white foam moustache and a huge delighted smile, in the same close-up.",
+      "characters": ["Monk"],
+      "seed": 1007
     },
     {
       "id": 9,
       "name": "verse1_hangover_magic",
       "duration": 4,
-      "prompt": "Close-up of the monk's face as a tiny dark storm cloud above his head dissolves into golden sparkles with each sip of beer, a hangover headache vanishing, trolls tap their temples knowingly in the background, magical comedy."
+      "prompt": "Close-up of Monk with a tiny dark storm cloud above his head, representing his hangover, as he takes another sip of golden beer.",
+      "motion_prompt": "The little cloud dissolves into golden sparkles while Monk relaxes and smiles with relief.",
+      "end_prompt": "The dark cloud has vanished into golden sparkles above Monk's head, and he smiles peacefully with his eyes closed.",
+      "characters": ["Monk"],
+      "seed": 1008
     },
     {
       "id": 10,
       "name": "verse1_empty_mug",
       "duration": 4,
-      "prompt": "The monk slams down an empty mug, amazed, a huge troll claps him on the shoulder and sends him sliding across the bench, beer droplets sparkle in the air, trolls laughing, warm tavern interior."
+      "prompt": "Monk slams an empty mug onto a barrel table. Pedro laughs and gives him an enthusiastic friendly pat on the shoulder, with beer droplets sparkling in the air.",
+      "motion_prompt": "Pedro's pat makes Monk slide a short distance along the bench, dizzy and laughing.",
+      "end_prompt": "Monk sits at the end of the same bench, dizzy and laughing, while Pedro grins beside the empty mug.",
+      "characters": ["Monk", "Pedro"],
+      "seed": 1009
     },
     {
       "id": 11,
       "name": "verse1_drummer",
       "duration": 4,
-      "prompt": "The fat troll drummer in an iron helmet pounds barrel drums with bone sticks, beer splashing in rhythm, sparks flying, the monk covers his ears and laughs, stage lights strobing, dynamic low angle."
+      "prompt": "Axel pounds the drums with energetic heavy-metal rhythm, beer splashing and sparks flying, while Monk covers his ears and laughs beside the stage.",
+      "motion_prompt": "Axel lifts both drumsticks and strikes the final drum hit as Monk laughs.",
+      "end_prompt": "Axel finishes a powerful drum hit with both sticks raised, and Monk laughs with his hands over his ears.",
+      "characters": ["Monk", "Axel"],
+      "seed": 1010
     },
     {
       "id": 12,
       "name": "chorus1_table_dance",
       "duration": 4,
-      "prompt": "Chorus explosion: trolls and the monk dance on top of barrel tables, giant mugs raised, foam flying, firelight and stage lights, chaotic heavy metal tavern party, wide dynamic shot."
+      "prompt": "Monk, Patricia, Pedro and Prima dance on sturdy barrel tables with mugs raised, foam flying, firelight and stage lights creating a chaotic heavy-metal party.",
+      "motion_prompt": "The four friends jump and land in a synchronized dance pose with their mugs raised.",
+      "end_prompt": "Monk, Patricia, Pedro and Prima hold a joyful dance pose on the tables, mugs raised and foam suspended in the air.",
+      "characters": ["Monk", "Patricia", "Pedro", "Prima"],
+      "seed": 1011
     },
     {
       "id": 13,
       "name": "chorus1_blonde_beer",
       "duration": 4,
-      "prompt": "Extreme close-up of golden blonde beer pouring from a wooden tap into a frosty mug, bubbles rising like tiny stars, a troll hand with chunky rings holding the mug, warm backlight, glistening foam."
+      "prompt": "Extreme close-up of golden blonde beer pouring from a wooden tap into a frosty mug held by BarTender, bubbles rising and white foam glistening in warm backlight.",
+      "motion_prompt": "The mug fills and BarTender moves it away from the tap without spilling the foam crown.",
+      "end_prompt": "BarTender holds the full frosty mug away from the tap, topped with golden blonde beer and a thick white foam crown.",
+      "characters": ["BarTender"],
+      "seed": 1012
     },
     {
       "id": 14,
       "name": "chorus1_wheat_beer",
       "duration": 4,
-      "prompt": "A tall pint of cloudy wheat beer on a barrel table, the red-skinned troll guitarist shredding a bone-and-oak electric guitar behind it, long hair whipping, stage lights strobing, the monk headbanging in the foreground."
+      "prompt": "A tall pint of cloudy wheat beer stands on a barrel table. Behind it Saul plays lead guitar and Patricia plays violin, while Monk headbangs gently in the foreground.",
+      "motion_prompt": "Saul and Patricia finish a phrase together while Monk lowers his head in a headbanging pose.",
+      "end_prompt": "Saul and Patricia hold the final note behind the wheat beer, and Monk is caught mid-headbang in the foreground.",
+      "characters": ["Monk", "Saul", "Patricia"],
+      "seed": 1013
     },
     {
       "id": 15,
       "name": "chorus1_dark_beer",
       "duration": 4,
-      "prompt": "Close-up of a dark stout beer with almost no foam in a heavy iron mug, the monk's doubtful face reflected in the black liquid, trolls grinning and nodding approvingly around him, moody amber light."
+      "prompt": "Close-up of a dark stout with almost no foam in a heavy mug. Monk studies it doubtfully while Pedro watches with an encouraging smile.",
+      "motion_prompt": "Monk takes a cautious sip and his doubtful expression turns into pleasant surprise.",
+      "end_prompt": "Monk lowers the stout mug and smiles in pleasant surprise while Pedro nods approvingly.",
+      "characters": ["Monk", "Pedro"],
+      "seed": 1014
     },
     {
       "id": 16,
       "name": "chorus1_toast",
       "duration": 4,
-      "prompt": "Group toast: the monk and a circle of huge trolls clink giant mugs, a wave of foam erupts upward, the camera tilts up toward the tavern ceiling made of roots and hanging lanterns, joyful heavy metal energy."
+      "prompt": "Monk, Patricia, Pedro and Prima gather in a close group toast beneath hanging lanterns, each holding a giant mug near the center of the group.",
+      "motion_prompt": "The four mugs move together and clink, sending a small wave of white foam upward.",
+      "end_prompt": "The four mugs meet in the center and a wave of white foam bursts upward toward the hanging lanterns.",
+      "characters": ["Monk", "Patricia", "Pedro", "Prima"],
+      "seed": 1015
     },
     {
       "id": 17,
       "name": "verse2_moshpit",
       "duration": 4,
-      "prompt": "A wild mosh pit of chunky trolls in leather vests, the monk crowd-surfing on a sea of green hands, beer mugs held high, stage lights blazing red and green, sparks and foam in the air."
+      "prompt": "A wild but friendly tavern mosh pit surrounds Monk, who begins crowd-surfing. Axel, Pedro and Prima headbang at the edge and help support him, with mugs held safely high.",
+      "motion_prompt": "The crowd lifts Monk higher while Axel, Pedro and Prima steady him and cheer.",
+      "end_prompt": "Monk is lifted above the crowd with his arms spread and a big smile, supported near Axel, Pedro and Prima.",
+      "characters": ["Monk", "Axel", "Pedro", "Prima"],
+      "seed": 1016
     },
     {
       "id": 18,
       "name": "verse2_whiskey",
       "duration": 4,
-      "prompt": "The monk at the bar with the massive troll bartender, a dusty bottle of dark liquor with a red wax seal and a shot glass beside a pint of beer, the monk looks nervous, the bartender grins, smoky tavern light."
+      "prompt": "Monk stands nervously at the bar with BarTender. A dusty bottle of dark liquor with a red wax seal, a shot glass and a pint of beer sit between them.",
+      "motion_prompt": "BarTender fills the shot glass and slides it toward hesitant Monk.",
+      "end_prompt": "The filled shot glass rests in front of Monk, who reaches for it hesitantly while BarTender grins.",
+      "characters": ["Monk", "BarTender"],
+      "seed": 1017
     },
     {
       "id": 19,
       "name": "verse2_shot",
       "duration": 4,
-      "prompt": "The monk downs a shot of dark liquor, his face comically contorted, steam shooting from his ears, trolls roaring with laughter, mugs slamming on the bar, exaggerated cartoon physics."
+      "prompt": "Monk holds a shot of dark liquor at the bar while BarTender and the patrons watch expectantly, mugs in hand.",
+      "motion_prompt": "Monk downs the shot and reacts with an exaggerated grimace as harmless cartoon steam rises around his ears.",
+      "end_prompt": "Monk holds the empty shot glass with a comic grimace and red cheeks while BarTender laughs and slaps the bar.",
+      "characters": ["Monk", "BarTender"],
+      "seed": 1018
     },
     {
       "id": 20,
-      "name": "bridge_lonely_troll",
+      "name": "bridge_lonely_druid",
       "duration": 4,
-      "prompt": "A sad, small forest troll sits alone by the tavern door in the rain, the monk notices him from inside and waves him in, warm amber light spilling out into the cold blue forest, empathetic mood."
+      "prompt": "Druid sits alone by the tavern door in the rain, looking tired and sad. Monk notices him from inside and waves him toward the warm amber doorway.",
+      "motion_prompt": "Monk opens the door wider and beckons while Druid looks up with hope.",
+      "end_prompt": "Monk stands in the open doorway waving Druid inside, and Druid looks up hopefully from the rain.",
+      "characters": ["Monk", "Druid"],
+      "seed": 1019
     },
     {
       "id": 21,
       "name": "bridge_invitation",
       "duration": 4,
-      "prompt": "The monk puts an arm around the lonely forest troll and hands him a giant mug of beer, the troll's sad face lights up, trolls around them smile, warm firelight, heartwarming comedy."
+      "prompt": "Inside the warm tavern, Monk welcomes Druid with a hand on his shoulder and offers him a large mug of golden blonde beer.",
+      "motion_prompt": "Druid accepts the mug with both hands and his sad expression becomes a warm smile.",
+      "end_prompt": "Druid holds the mug with both hands and smiles, with Monk's welcoming hand on his shoulder.",
+      "characters": ["Monk", "Druid"],
+      "seed": 1020
     },
     {
       "id": 22,
       "name": "bridge_singalong",
       "duration": 4,
-      "prompt": "The whole tavern sings together, trolls and the monk with arms around each other's shoulders, swaying and raising mugs, warm golden light, smoke and foam, wide group shot."
+      "prompt": "Monk, Druid, Patricia, Pedro and Rubo sing together with arms around each other's shoulders and mugs raised, surrounded by the warm glowing tavern crowd.",
+      "motion_prompt": "The group sways together to one side and raises their mugs as they sing.",
+      "end_prompt": "The five friends lean into one shared singing pose, arms on shoulders and mugs raised, all smiling.",
+      "characters": ["Monk", "Druid", "Patricia", "Pedro", "Rubo"],
+      "seed": 1021
     },
     {
       "id": 23,
       "name": "chorus2_recipe_scroll",
       "duration": 4,
-      "prompt": "The troll bartender unrolls a huge ancient scroll covered in pictograms of barley, hops, water, yeast, and a foaming mug, the monk leans in eagerly, trolls gather around, candlelight, mysterious atmosphere."
+      "prompt": "BarTender unrolls an ancient scroll covered in pictograms of barley, hops, water, yeast and a foaming mug. Monk and Druid lean in eagerly while Saul studies the recipe, all lit by candles.",
+      "motion_prompt": "BarTender unrolls the last part of the scroll and Druid points to the hop pictograms.",
+      "end_prompt": "The scroll lies fully unrolled on the bar; Monk, BarTender, Druid and Saul lean over its pictograms in candlelight.",
+      "characters": ["Monk", "BarTender", "Druid", "Saul"],
+      "seed": 1022
     },
     {
       "id": 24,
       "name": "chorus2_cauldron",
       "duration": 4,
-      "prompt": "The monk stirs a giant brewing cauldron with a wooden oar, steam and golden sparks rising, trolls toss barley and hops into the brew, the tavern kitchen made of roots and copper, warm firelight."
+      "prompt": "Monk stirs a giant brewing cauldron with a wooden oar. Druid adds herbs and Prima pours in barley, with steam and golden sparks rising in the root-and-copper tavern kitchen.",
+      "motion_prompt": "Monk lifts the oar slightly as Druid and Prima finish adding their ingredients and the cauldron bubbles.",
+      "end_prompt": "The cauldron bubbles with a golden glow, Monk holds the steaming oar above it, and Druid and Prima admire the brew.",
+      "characters": ["Monk", "Druid", "Prima"],
+      "seed": 1023
     },
     {
       "id": 25,
       "name": "chorus2_ingredients",
       "duration": 4,
-      "prompt": "Trolls throw handfuls of hops and barley into the cauldron, a burst of green and gold magic light erupts, the monk's face illuminated with wonder, floating herbs and sparks, dynamic shot."
+      "prompt": "Druid and Prima toss hops and barley into the glowing cauldron while Monk watches in wonder, herbs and sparks floating around the same kitchen.",
+      "motion_prompt": "A warm burst of amber magical light rises from the cauldron and Monk shields his amazed face with one hand.",
+      "end_prompt": "Amber and gold light fills the kitchen; Monk shields his face with one hand while Druid and Prima smile beside the cauldron.",
+      "characters": ["Monk", "Druid", "Prima"],
+      "seed": 1024
     },
     {
       "id": 26,
       "name": "chorus2_taps",
       "duration": 4,
-      "prompt": "The tavern's wooden beer taps open, dozens of mugs fill on a conveyor of roots and wooden gears, golden foam flooding the floor, the monk and trolls celebrate, whimsical brewery contraption."
+      "prompt": "The tavern's wooden beer taps fill mugs on a whimsical conveyor of roots and wooden gears. Monk, BarTender, Prima and Saul watch the first mugs fill with golden beer.",
+      "motion_prompt": "The conveyor advances, the last mugs fill and the four friends raise their arms in celebration.",
+      "end_prompt": "A row of full mugs lines the conveyor, white foam spills gently onto the floor, and Monk, BarTender, Prima and Saul cheer.",
+      "characters": ["Monk", "BarTender", "Prima", "Saul"],
+      "seed": 1025
     },
     {
       "id": 27,
       "name": "chorus2_recipe_relic",
       "duration": 4,
-      "prompt": "The monk holds the ancient recipe scroll aloft like a sacred relic, trolls raise him on their shoulders, cheering, a fountain of beer in the background, triumphant low-angle hero shot."
+      "prompt": "Monk holds the ancient recipe scroll aloft like a sacred relic while Druid and BarTender stand proudly beside him near a fountain of toasted amber beer.",
+      "motion_prompt": "Druid and BarTender help lift Monk slightly as the crowd cheers and Monk raises the scroll higher.",
+      "end_prompt": "Monk holds the scroll high above his head, supported by Druid and BarTender, in a triumphant low-angle pose.",
+      "characters": ["Monk", "Druid", "BarTender"],
+      "seed": 1026
     },
     {
       "id": 28,
       "name": "verse3_spotlight",
       "duration": 4,
-      "prompt": "The tattooed troll singer grabs a bone microphone, the band falls silent, a spotlight hits the nervous monk holding the recipe scroll, smoky stage, dramatic tension."
+      "prompt": "Prima lowers her microphone as the band pauses. Patricia gestures toward nervous Monk, who holds the recipe scroll while a spotlight settles on him.",
+      "motion_prompt": "Prima offers the microphone toward Monk and Patricia encourages him with a small gesture.",
+      "end_prompt": "Monk stands in the spotlight clutching the scroll, while Prima offers the microphone and Patricia smiles encouragingly.",
+      "characters": ["Monk", "Prima", "Patricia"],
+      "seed": 1027
     },
     {
       "id": 29,
       "name": "verse3_lesson",
       "duration": 4,
-      "prompt": "The monk reads the recipe with dramatic gestures, trolls listen intently, some taking notes on wooden tablets, a wall of beer taps from different lands behind them, warm tavern light."
+      "prompt": "Monk reads the recipe with dramatic gestures. Druid and Saul listen intently in the front row, comparing it with their notes, with a wall of beer taps behind them.",
+      "motion_prompt": "Monk raises one finger to emphasize the final instruction while Druid and Saul lean forward.",
+      "end_prompt": "Monk holds one finger up above the open scroll, and Druid and Saul lean forward attentively with their notes.",
+      "characters": ["Monk", "Druid", "Saul"],
+      "seed": 1028
     },
     {
       "id": 30,
       "name": "verse3_all_beers",
       "duration": 4,
-      "prompt": "The monk points to the sky, trolls of different colors and sizes raise their mugs, the camera spins around them, a tapestry of beer styles and ingredients in the background, joyful celebration."
+      "prompt": "Monk points toward a display of golden blonde, toasted amber and black stout beers. Druid, Saul and Pedro stand beside him with mugs at chest height.",
+      "motion_prompt": "Monk raises his pointing hand and the other three lift their mugs toward the display.",
+      "end_prompt": "Monk points upward while Druid, Saul and Pedro hold their different beers high in a joyful toast.",
+      "characters": ["Monk", "Druid", "Saul", "Pedro"],
+      "seed": 1029
     },
     {
       "id": 31,
       "name": "bridge2_toast",
       "duration": 4,
-      "prompt": "Every creature in the tavern clinks mugs in a huge toast, a golden beer geyser erupts from the center of the room, foam and sparks flying, the monk and trolls cheering, epic wide shot."
+      "prompt": "Monk, Patricia, Pedro and Saul join a huge tavern toast around the center of the room as a golden beer geyser begins to rise nearby.",
+      "motion_prompt": "Their mugs clink and the golden geyser rises while all four recoil slightly with delighted smiles.",
+      "end_prompt": "A golden beer geyser rises high behind Monk, Patricia, Pedro and Saul, who cheer with their mugs held together.",
+      "characters": ["Monk", "Patricia", "Pedro", "Saul"],
+      "seed": 1030
     },
     {
       "id": 32,
       "name": "bridge2_foam_face",
       "duration": 4,
-      "prompt": "The beer geyser forms a giant foamy troll face in the air, the monk and trolls stare in awe, then cheer, magical golden light, heavy metal fantasy comedy."
+      "prompt": "The golden beer geyser begins forming a giant friendly face of white foam above Monk and Patricia, who stare upward in awe.",
+      "motion_prompt": "The foam face finishes forming and smiles while Monk and Patricia throw their arms up and cheer.",
+      "end_prompt": "A giant smiling face of white foam floats above Monk and Patricia, who cheer with their arms raised.",
+      "characters": ["Monk", "Patricia"],
+      "seed": 1031
     },
     {
       "id": 33,
       "name": "chorus3_band",
       "duration": 4,
-      "prompt": "Full band performance: the red-skinned troll guitarist, the fat drummer in an iron helmet, the tattooed troll singer, and the monk playing a tambourine made from a barrel lid, stage lights, smoke, sparks, crowd going wild."
+      "prompt": "Full band performance on the barrel stage: Prima sings, Saul plays lead guitar, Rubo plays second guitar, Pedro plays bass, Axel plays drums and Patricia plays violin, with smoke, sparks and warm stage lights.",
+      "motion_prompt": "The six musicians play through the final phrase and finish together on one powerful chord.",
+      "end_prompt": "Prima, Saul, Rubo, Pedro, Axel and Patricia hold the final chord together in a cohesive wide stage shot.",
+      "characters": ["Prima", "Saul", "Rubo", "Pedro", "Axel", "Patricia"],
+      "seed": 1032
     },
     {
       "id": 34,
       "name": "chorus3_air_guitar",
       "duration": 4,
-      "prompt": "The monk, now wearing a spiked leather vest over his brown robe, plays air guitar with a broom, trolls headbanging in unison around him, stage lights strobing, comedic heavy metal energy."
+      "prompt": "Monk, still wearing his usual brown monastic habit, playfully uses a broom as an air guitar. Axel faces him in a friendly air-guitar duel while the crowd headbangs.",
+      "motion_prompt": "Monk drops carefully to his knees in a rock pose with the broom while Axel raises his imaginary guitar.",
+      "end_prompt": "Monk kneels in a comic rock pose holding the broom like a guitar, and Axel celebrates opposite him.",
+      "characters": ["Monk", "Axel"],
+      "seed": 1033
     },
     {
       "id": 35,
       "name": "chorus3_fretboard",
       "duration": 4,
-      "prompt": "Close-up of the troll guitarist's clawed fingers flying over the fretboard of a bone-and-oak guitar, sparks and embers flying, the monk's amazed face in the foreground, shallow depth of field."
+      "prompt": "Close-up of Saul's hands playing the fretboard of his lead guitar, with Rubo playing second guitar beside him and Monk's amazed face visible in the foreground.",
+      "motion_prompt": "Saul bends one sustained note while Rubo holds the rhythm and Monk watches with widening eyes.",
+      "end_prompt": "Saul holds a high note on the fretboard, Rubo sustains the rhythm beside him, and Monk stares in amazement.",
+      "characters": ["Monk", "Saul", "Rubo"],
+      "seed": 1034
     },
     {
       "id": 36,
       "name": "chorus3_jig",
       "duration": 4,
-      "prompt": "The tavern crowd forms a circle, two trolls dance a wild jig, the monk tries to copy them and trips, rolling into a barrel of beer foam, trolls laughing, dynamic action shot."
+      "prompt": "Pedro and Prima dance a wild jig in a tavern circle while Monk tries to copy their steps beside an open barrel of white beer foam.",
+      "motion_prompt": "Monk misses one dance step and tumbles safely into the soft foam barrel as Pedro and Prima laugh.",
+      "end_prompt": "Monk sits inside the barrel covered in white foam, laughing, while Pedro and Prima finish their jig beside him.",
+      "characters": ["Monk", "Pedro", "Prima"],
+      "seed": 1035
     },
     {
       "id": 37,
       "name": "chorus3_foam_god",
       "duration": 4,
-      "prompt": "The monk emerges from the barrel of foam like a golden beer god, a mug in each hand, foam crown on his head, the crowd going wild, stage lights blazing, triumphant low-angle shot."
+      "prompt": "Monk begins rising from the barrel of white beer foam with a mug in each hand, still in his brown habit, while Pedro and Prima cheer beside him.",
+      "motion_prompt": "Monk stands tall and raises both mugs as the foam settles into a playful crown on his head.",
+      "end_prompt": "Monk stands in the barrel with both mugs raised and a crown of white foam, while Pedro and Prima cheer.",
+      "characters": ["Monk", "Pedro", "Prima"],
+      "seed": 1036
     },
     {
       "id": 38,
       "name": "solo_guitar",
       "duration": 4,
-      "prompt": "Guitar solo: the red-skinned troll guitarist leans back, long hair whipping, a wall of tree-stump amps behind him, the camera orbits, beer glasses vibrating, sparks and stage smoke."
+      "prompt": "Guitar solo: Saul leans back playing lead guitar while Rubo drives the rhythm on second guitar, with tree-stump amps, sparks and stage smoke behind them.",
+      "motion_prompt": "Saul leans into the final high note and Rubo strikes the last rhythmic chord as sparks rise.",
+      "end_prompt": "Saul holds his lead guitar high at the end of the solo and Rubo holds the final chord beside him under the stage lights.",
+      "characters": ["Saul", "Rubo"],
+      "seed": 1037
     },
     {
       "id": 39,
       "name": "solo_drums",
       "duration": 4,
-      "prompt": "The fat troll drummer's arms blur as he pounds the barrel drums, drumsticks sparking, the monk pounds a barrel in rhythm with his tongue out, crowd cheering, dynamic low angle."
+      "prompt": "Axel plays an energetic drum solo while Monk pounds a small barrel beside the stage in rhythm, with the crowd cheering around them.",
+      "motion_prompt": "Axel raises both sticks for a crash and Monk lands one final playful hit on his barrel.",
+      "end_prompt": "Axel strikes the crash with both sticks raised and Monk freezes after his final barrel hit, both grinning.",
+      "characters": ["Monk", "Axel"],
+      "seed": 1038
     },
     {
       "id": 40,
       "name": "solo_crowd_surf",
       "duration": 4,
-      "prompt": "Mosh pit: trolls slam-dance, a giant troll crowd-surfs, the monk rides a beer barrel like a surfboard over the crowd, foam and sparks, chaotic heavy metal party."
+      "prompt": "Monk balances on a small beer barrel carried by the friendly crowd. Pedro, Prima and Rubo reach up to steady the barrel as foam and sparks fill the air.",
+      "motion_prompt": "The crowd carries the barrel forward while Monk spreads his arms and the three friends keep it stable.",
+      "end_prompt": "Monk balances confidently on the barrel above the crowd with arms spread, supported near Pedro, Prima and Rubo.",
+      "characters": ["Monk", "Pedro", "Prima", "Rubo"],
+      "seed": 1039
     },
     {
       "id": 41,
       "name": "solo_roof_off",
       "duration": 4,
-      "prompt": "The tavern roof blows off in a burst of foam and sparks, the band and crowd roar at the full moon, forest animals watching from the trees, epic wide shot, magical night."
+      "prompt": "A magical burst of foam and sparks begins lifting the tavern roof above Monk, Prima, Saul and Axel, with the full moon appearing through the opening.",
+      "motion_prompt": "The roof panels lift away magically and the four friends raise their arms toward the revealed full moon.",
+      "end_prompt": "The roof is open to the full moon, and Monk, Prima, Saul and Axel cheer with their arms raised beneath it.",
+      "characters": ["Monk", "Prima", "Saul", "Axel"],
+      "seed": 1040
     },
     {
       "id": 42,
       "name": "solo_stage_dive",
       "duration": 4,
-      "prompt": "The monk stage-dives into the crowd, trolls catch him, slow-motion foam and sparks, huge grins, stage lights flaring, dynamic action shot."
+      "prompt": "Monk prepares a playful stage dive at the edge of the low stage while Prima and Pedro wait with the crowd to catch him safely.",
+      "motion_prompt": "Monk makes a short stage dive and Prima, Pedro and the crowd catch and lift him.",
+      "end_prompt": "Prima, Pedro and the crowd hold Monk safely aloft, all grinning amid slow-motion foam and sparks.",
+      "characters": ["Monk", "Prima", "Pedro"],
+      "seed": 1041
     },
     {
       "id": 43,
       "name": "solo_beer_waterfall",
       "duration": 4,
-      "prompt": "The troll bartender pours a waterfall of golden beer from a giant barrel into a swimming-pool-sized mug, trolls dive in, foam waves, absurd scale, comedic fantasy."
+      "prompt": "BarTender pours a comically large waterfall of golden beer from a giant barrel into an enormous mug, with white foam waves and absurd fantasy scale.",
+      "motion_prompt": "The last golden beer pours into the giant mug and BarTender lowers the empty barrel proudly.",
+      "end_prompt": "The enormous mug is full of golden beer and white foam, and BarTender holds the lowered empty barrel with a proud smile.",
+      "characters": ["BarTender"],
+      "seed": 1042
     },
     {
       "id": 44,
       "name": "solo_tavern_wide",
       "duration": 4,
-      "prompt": "Wide shot of the colossal hollow-tree tavern glowing in the dark forest, music visibly shaking the trees, fireflies swirling, full moon above, magical heavy metal fairy tale."
+      "prompt": "Wide characterless shot of the colossal hollow-tree tavern glowing in the dark forest, fireflies swirling and the full moon above while music shakes the trees.",
+      "motion_prompt": "The trees sway gently with the music and fireflies spiral around the glowing tavern windows.",
+      "end_prompt": "The hollow-tree tavern glows brightly, surrounding trees lean with the rhythm and fireflies swirl beneath the full moon.",
+      "characters": [],
+      "seed": 1043
     },
     {
       "id": 45,
       "name": "final_chorus_goodbye",
       "duration": 4,
-      "prompt": "Dawn approaches, the tavern door opens, the monk steps out with a small barrel under one arm and the recipe scroll in the other, trolls hug him goodbye, warm light spilling into the blue forest."
+      "prompt": "At dawn, Monk steps through the tavern door with a small barrel under one arm and the recipe scroll in the other. BarTender and Druid stand at the doorway to say goodbye.",
+      "motion_prompt": "Monk steps outside, turns back and waves while BarTender and Druid return the wave.",
+      "end_prompt": "Monk stands just outside holding the barrel and scroll, waving goodbye to BarTender and Druid in the warm doorway.",
+      "characters": ["Monk", "BarTender", "Druid"],
+      "seed": 1044
     },
     {
       "id": 46,
       "name": "final_chorus_journey_home",
       "duration": 4,
-      "prompt": "The monk walks back through the forest, now confident, holding a glowing mug instead of a lantern, trolls waving from the tavern door behind him, fireflies guiding his path, morning mist."
+      "prompt": "Monk walks confidently back through the misty morning forest, holding a glowing mug of amber beer instead of a lantern, with the distant tavern behind him.",
+      "motion_prompt": "Monk walks farther along the same path as fireflies guide him and the tavern recedes into the distance.",
+      "end_prompt": "Monk continues down the misty path with the glowing mug, the tavern door now small and warm far behind him.",
+      "characters": ["Monk"],
+      "seed": 1045
     },
     {
       "id": 47,
       "name": "final_chorus_monastery",
       "duration": 4,
-      "prompt": "The monk arrives at a small stone monastery, other monks in brown robes gather around the barrel and the glowing recipe scroll, surprised and curious, morning light, cozy courtyard."
+      "prompt": "Monk arrives at a small stone monastery courtyard carrying the barrel and glowing recipe scroll. A few distinct fellow monks gather curiously around him in morning light.",
+      "motion_prompt": "Monk sets down the barrel and opens the scroll while the other monks lean closer with curiosity.",
+      "end_prompt": "Monk smiles proudly beside the barrel and open scroll as the distinct fellow monks gather around to look.",
+      "characters": ["Monk"],
+      "seed": 1046
     },
     {
       "id": 48,
       "name": "final_chorus_sharing",
       "duration": 4,
-      "prompt": "The monk pours golden beer for his fellow monks in the monastery courtyard, everyone cheers and raises mugs, trolls secretly watching from the forest edge, proud and smiling, warm sunrise."
+      "prompt": "Monk pours golden beer for his fellow monks in the monastery courtyard. Druid, Rubo and Saul watch proudly from the forest edge with their own mugs, in warm sunrise light.",
+      "motion_prompt": "Monk finishes pouring and raises his mug with the group while Druid, Rubo and Saul join the toast from nearby.",
+      "end_prompt": "Monk and the fellow monks raise full mugs together, while Druid, Rubo and Saul smile and lift theirs at the forest edge.",
+      "characters": ["Monk", "Druid", "Rubo", "Saul"],
+      "seed": 1047
     },
     {
       "id": 49,
       "name": "outro_title",
       "duration": 4,
-      "prompt": "Final hero shot: the monk, now wearing a spiked leather vest over his robe, raises a mug alongside a group of trolls and monks on a hill under a giant full moon, foam and fireflies swirling, epic heavy metal fairy-tale ending, cinematic silhouette."
+      "prompt": "Final group portrait on a hill under a giant full moon: Monk in his unchanged brown habit raises a mug with Axel, BarTender, Druid, Patricia, Pedro, Prima, Rubo and Saul, surrounded by foam and fireflies.",
+      "motion_prompt": "All nine friends lift their mugs together into one final heroic toast as fireflies spiral upward.",
+      "end_prompt": "Monk, Axel, BarTender, Druid, Patricia, Pedro, Prima, Rubo and Saul hold their mugs high together against the giant full moon.",
+      "characters": ["Monk", "Axel", "BarTender", "Druid", "Patricia", "Pedro", "Prima", "Rubo", "Saul"],
+      "seed": 1048
     }
   ]
 }

@@ -1,75 +1,86 @@
-# Cerveza — La taberna del trol
+# Cerveza — La taberna de El Sabio
 
-Guion visual para el tema **“Cerveza”** de El Sabio. El vídeo es una pieza animada de fantasía oscura y humor heavy metal, con una estética inspirada en los videoclips animados de metal tipo Batmetal: trolls enormes, vestidos de cuero con remaches, bosques brumosos, tabernas de madera y mucha cerveza.
+Guion visual para el tema **“Cerveza”** de El Sabio. El vídeo es una pieza animada de fantasía oscura y humor heavy metal: un bosque brumoso, una taberna dentro de un árbol colosal, una banda formada por el grupo y mucha cerveza.
 
 ## Ficha técnica
 
 | Campo | Valor |
 |---|---|
 | Canción | `Cerveza.mp3` (3:16) |
-| Formato | 832 × 480, 24 fps, 16:9 |
+| Formato horizontal | 832 × 480, 16 fps |
+| Formato vertical | 480 × 832, 16 fps, mediante `--orientation vertical` |
 | Duración | 49 planos de ~4 s, escalados automáticamente a los 3:16 de la canción |
-| Imagen | `Qwen/Qwen-Image` |
-| Vídeo | `Wan-AI/Wan2.2-I2V-A14B-Diffusers` |
-| Subtítulos | `subtitles.json` |
-| Guion ejecutable | `screenplay.json` |
+| Imagen | `Qwen/Qwen-Image` y `Qwen/Qwen-Image-Edit` |
+| Vídeo | `Wan-AI/Wan2.2-I2V-A14B-Diffusers`, siempre con imagen inicial y final |
+| Subtítulos | `subtitles.json`; `subtitles_vertical.json` en vertical |
+| Guion ejecutable único | `screenplay.json` |
+| Referencias | `input/characters.json` y las imágenes de `input/` |
 
 ## Sinopsis
 
-Un monje joven y flacucho se pierde en un bosque encantado. Tras horas de caminar encuentra una taberna construida dentro de un árbol colosal. Dentro, una banda de trolls rockeros está dando un concierto y bebiendo cerveza. Los trolls acogen al monje, le enseñan los secretos del brebaje —rubia, de trigo y negra— y le entregan la receta. El monje vuelve a su monasterio y comparte la cerveza con sus hermanos, mientras los trolls lo observan con orgullo desde el bosque.
+Un monje se pierde en un bosque encantado. Tras horas de caminar encuentra una taberna construida dentro de un árbol colosal. Dentro, El Sabio está dando un concierto: Prima canta, Saul y Rubo tocan las guitarras, Pedro el bajo, Axel la batería y Patricia el violín. El monje conoce al tabernero y al druida, aprende los secretos de la cerveza —rubia, de trigo y negra— y recibe la receta. Después de una noche de música y celebración, vuelve a su monasterio para compartir el hallazgo.
 
 ## Personajes
 
-- **El monje**: joven, calvo, ojos grandes e inocentes, túnica marrón con capucha y cinturón de cuerda. Empieza asustado y termina convertido en una estrella del metal, con chaleco de cuero y remaches sobre la túnica.
-- **El tabernero trol**: trol enorme de piel verde musgo, mandíbula inferior prominente, colmillos, barba trenzada llena de chapas de cerveza, chaleco negro y muñequeras de pinchos. Es el maestro cervecero y el alma de la taberna.
-- **El guitarrista trol**: trol de piel rojiza, pelo negro y grasiento, guitarra de hueso y roble. Su solo es el clímax del vídeo.
-- **El batería trol**: trol gordo con casco de hierro y baquetas de hueso; toca barriles.
-- **El cantante trol**: trol tatuado con micrófono de hueso.
-- **La clientela**: trolls verdes y grises, con colmillos, tatuajes, chalecos de cuero y jarras gigantes. También hay pequeños criaturas del bosque que se suman a la fiesta.
-- **El trol triste**: un trol pequeño y solitario que aparece en la puerta bajo la lluvia; el monje lo invita a entrar.
+Los nombres y los roles proceden de `input/characters.json`. Para no obligar al editor a rediseñar a nadie, la apariencia se define únicamente mediante cada imagen de referencia, sin descripciones físicas contradictorias en los prompts. Las imágenes son anclas inmutables: no deben cambiar la cara, la edad, el peinado, el vestuario ni las proporciones de una escena a otra.
+
+- **Monk**: protagonista y viajero que descubre la taberna; conserva siempre el hábito de su referencia.
+- **Axel**: batería del grupo.
+- **BarTender**: camarero, responsable de servir las jarras y custodiar la receta.
+- **Druid**: maestro herbalista y cervecero.
+- **Patricia**: violinista del grupo.
+- **Pedro**: bajista del grupo.
+- **Prima**: vocalista principal.
+- **Rubo**: segundo guitarrista.
+- **Saul**: guitarrista principal.
+
+La clientela y los demás monjes son personajes de fondo y nunca deben sustituir, duplicar ni mezclar las identidades del reparto principal.
 
 ## Estética y reglas visuales
 
-- Animación 3D estilizada, con proporciones exageradas y texturas sucias, no fotorrealista.
-- Paleta: verdes profundos y turquesas del bosque; ámbar y naranja del fuego de la taberna; dorado y esmeralda de la cerveza; rojos y verdes de las luces de escenario.
-- Cámara cinematográfica: contrapicados heroicos, travellings rápidos, primeros planos de jarras y cuerdas de guitarra, niebla volumétrica, chispas y grano de película.
-- Nada de texto legible en pantalla: los carteles y pergaminos usan pictogramas (espigas, lúpulo, jarra).
-- El humor es físico y exagerado: espuma por todas partes, caras deformadas por el alcohol, trolls lanzando al monje por los aires.
+- Animación 3D estilizada de fantasía oscura, con texturas detalladas y caras reconocibles; nada de rediseños fotorrealistas del reparto.
+- Paleta: verdes profundos del bosque; ámbar y naranja del fuego; dorado, tostado y negro de la cerveza; rojos y ámbar en el escenario.
+- La cerveza solo puede ser rubia, tostada o negra. Nunca verde ni con reflejos verdes.
+- Cada plano define `prompt` para la imagen inicial, `motion_prompt` para el movimiento y `end_prompt` para la imagen final. La cámara, el fondo, la iluminación y las identidades permanecen constantes salvo el cambio exigido por la acción.
+- Monk conserva siempre su hábito marrón; no aparece un cambio de vestuario a mitad del vídeo.
+- Nada de texto legible en pantalla: los carteles y pergaminos usan pictogramas de espigas, lúpulo y jarras.
 
 ## Estructura musical
 
-| Acto | Tiempo | Planos | Letra / momento | Acción |
-|---|---|---|---|---|
-| 1. El bosque y la taberna | 0:00–0:28 | 1–7 | Intro instrumental y grito “¡Cerveza, cerveza, quiero cerveza!” | El monje se pierde, descubre la taberna del árbol, entra y los trolls le reciben con jarras gigantes. |
-| 2. La primera jarra | 0:28–1:04 | 8–16 | Estrofa 1 y estribillo 1 | El monje prueba la cerveza, se le quita el resacón, conoce a la banda y brinda con todos. Se presentan la rubia, la de trigo y la negra. |
-| 3. La noche se descontrola | 1:04–1:28 | 17–22 | Estrofa 2 y puente | Mosh pit, chupito de whisky, el monje invita al trol triste y toda la taberna canta abrazada. |
-| 4. La receta | 1:28–1:48 | 23–27 | Estribillo 2 | El tabernero desenrolla el pergamino de la receta; el monje cuece el mosto, añade lúpulo y cebada, y los grifos llenan jarras en cadena. |
-| 5. El brindis | 1:48–2:08 | 28–32 | Estrofa 3 y puente | El monje explica la receta, todos brindan y un géiser de cerveza forma una cara de trol en el aire. |
-| 6. Concierto | 2:08–2:28 | 33–37 | Estribillo 3 | Concierto completo: el monje toca la pandereta, hace air guitar con una escoba y acaba emergiendo de un barril de espuma como un dios de la cerveza. |
-| 7. Solo y caos | 2:28–2:56 | 38–44 | Solo instrumental | Solo de guitarra, batería, crowd-surfing, el tejado sale volando y el tabernero llena una jacuzzi de cerveza. |
-| 8. Vuelta a casa | 2:56–3:16 | 45–49 | Estribillo final | El monje se despide con la receta, vuelve al monasterio, comparte la cerveza con los monjes y todos brindan bajo la luna. |
+| Acto | Tiempo | Planos | Acción |
+|---|---|---|---|
+| 1. El bosque y la taberna | 0:00–0:28 | 1–7 | Monk se pierde, descubre la taberna, ve a la banda y recibe su primera jarra. |
+| 2. La primera jarra | 0:28–1:04 | 8–16 | Prueba la cerveza, conoce a los músicos y brinda con sus nuevos amigos. |
+| 3. La noche se descontrola | 1:04–1:28 | 17–22 | Mosh pit, chupito y llegada de Druid, al que Monk invita a entrar. |
+| 4. La receta | 1:28–1:48 | 23–27 | BarTender enseña el pergamino; Monk, Druid y Prima preparan el mosto. |
+| 5. El brindis | 1:48–2:08 | 28–32 | Monk explica la receta y todos brindan bajo un géiser dorado. |
+| 6. Concierto | 2:08–2:28 | 33–37 | Actuación del grupo completo y baile de Monk con sus nuevos amigos. |
+| 7. Solos y caos | 2:28–2:56 | 38–44 | Solos de Saul y Axel, crowd-surfing, tejado abierto a la luna y cascada de cerveza. |
+| 8. Vuelta a casa | 2:56–3:16 | 45–49 | Monk se despide, comparte la cerveza en el monasterio y brinda con todo el grupo. |
 
-## Planos clave
+## Generación
 
-1. **El bosque**: plano general nocturno, raíces gigantes, niebla y luciérnagas. El monje camina con un farol.
-2. **La revelación**: el monje aparta los helechos y aparece la taberna dentro de un árbol descomunal, con ventanas ámbar y chimenea humeante.
-3. **La banda**: los trolls tocan sobre un escenario de calaveras y barriles; el monje espía desde la puerta.
-4. **El grito**: los trolls levantan las jarras y el monje entra empapado en espuma.
-5. **La primera jarra**: primer plano de la cerveza dorada cayendo en una jarra escarchada.
-6. **El resacón**: una nubecita negra sobre la cabeza del monje se disuelve en chispas doradas.
-7. **La receta**: pergamino antiguo con pictogramas de cebada, lúpulo, agua, levadura y una jarra.
-8. **El brindis**: todos los seres de la taberna chocan sus jarras y un géiser dorado atraviesa el techo.
-9. **El solo**: plano orbital del guitarrista trol con el pelo al viento y chispas saliendo de las cuerdas.
-10. **El final**: el monje, con chaleco de pinchos, brinda con trolls y monjes bajo una luna llena gigante.
-
-## Notas de producción
-
-- El procesador escala automáticamente las duraciones de los planos para que el montaje coincida con el audio. Wan cuantiza el número de fotogramas al múltiplo temporal que exige el modelo, así que puede haber una diferencia de unos pocos fotogramas por plano.
-- Los subtítulos están alineados a la grabación de `Cerveza.mp3`. Si se cambia la versión de la canción, hay que regenerarlos con `scripts/sync_subtitles.py`.
-- Para generar el vídeo:
+Plano horizontal completo:
 
 ```bash
-python scripts/create_video_from_screenplay.py \
-  --screenplay examples/largo_viaje/el_sabio/cerveza/screenplay.json \
-  --output output/cerveza
+scripts/create_cerveza_video.sh
 ```
+
+El mismo guion en vertical:
+
+```bash
+scripts/create_cerveza_vertical.sh
+```
+
+También se puede invocar directamente:
+
+```bash
+python scripts/create_video_from_character_screenplay.py \
+  --screenplay examples/largo_viaje/el_sabio/cerveza/screenplay.json \
+  --output output/cerveza_group \
+  --orientation horizontal
+```
+
+Para vertical, cambia a `--orientation vertical --subtitles subtitles_vertical.json`. Los parámetros `--width` y `--height` permiten sobrescribir las dimensiones sin crear otro guion.
+
+Usa `--dry-run` para revisar el reparto, las 49 escenas y el número de fotogramas sin cargar modelos. Las salidas se reutilizan para reanudar trabajos; después de cambiar referencias o prompts de una escena, utiliza un directorio `--output` nuevo para no conservar imágenes antiguas.

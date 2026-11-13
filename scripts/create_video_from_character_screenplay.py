@@ -45,6 +45,29 @@ def build_parser() -> argparse.ArgumentParser:
         help="Override the screenplay image-to-video model",
     )
     parser.add_argument(
+        "--orientation",
+        choices=["horizontal", "vertical"],
+        default=None,
+        help="Override the screenplay orientation, swapping its dimensions when needed",
+    )
+    parser.add_argument(
+        "--width",
+        type=int,
+        default=None,
+        help="Override the width of every scene",
+    )
+    parser.add_argument(
+        "--height",
+        type=int,
+        default=None,
+        help="Override the height of every scene",
+    )
+    parser.add_argument(
+        "--subtitles",
+        default=None,
+        help="Override the subtitles JSON path (relative to the screenplay)",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Print the characters, scenes and frame counts without loading any model",
@@ -92,6 +115,10 @@ def main() -> None:
         frame_model=args.frame_model,
         animation_mode=args.animation_mode,
         video_model=args.video_model,
+        orientation=args.orientation,
+        width=args.width,
+        height=args.height,
+        subtitles=args.subtitles,
         max_retries=args.max_retries,
         evaluate_output=not args.no_evaluate,
     )

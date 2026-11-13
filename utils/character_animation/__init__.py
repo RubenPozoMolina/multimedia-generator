@@ -6,6 +6,7 @@ so existing screenplays and outputs remain valid.
 
 from utils.character_animation.character_board import CharacterBoardBuilder
 from utils.character_animation.character_designer import CharacterDesigner
+from utils.character_animation.character_inputs import CharacterInputLibrary
 from utils.character_animation.frame_animator import FrameAnimator
 from utils.character_animation.frame_video_builder import FrameVideoBuilder
 from utils.character_animation.processor import CharacterAnimationProcessor
@@ -29,6 +30,7 @@ __all__ = [
     "CharacterAnimationProcessor",
     "CharacterBoardBuilder",
     "CharacterDesigner",
+    "CharacterInputLibrary",
     "CharacterScreenplay",
     "CharacterSpec",
     "EvaluationReport",

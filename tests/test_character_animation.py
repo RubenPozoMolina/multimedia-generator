@@ -274,6 +274,91 @@ class TestCharacterScreenplay:
         assert second[0].duration == 2.0
 
 
+class TestCharacterInputReferences:
+
+    def _screenplay(self, tmp_path, characters):
+        data = {
+            **MINIMAL_SCREENPLAY,
+            "characters": characters,
+            "scenes": [{"name": "Opening", "prompt": "a stage", "characters": [characters[0]["name"]]}],
+        }
+        return write_screenplay(tmp_path, data)
+
+    def test_input_folder_is_discovered_automatically(self, tmp_path):
+        input_dir = tmp_path / "input"
+        image = Path(save_image(input_dir / "axel.jpeg"))
+        (input_dir / "characters.json").write_text(
+            json.dumps([{"name": "Axel", "path": "input/axel.jpeg"}]),
+            encoding="utf-8",
+        )
+        screenplay = CharacterScreenplay.load(
+            self._screenplay(
+                tmp_path, [{"name": "Axel", "description": "a young man"}]
+            )
+        )
+
+        character = screenplay.build_characters()[0]
+        assert character.has_supplied_reference
+        assert Path(character.reference_image) == image
+
+    def test_character_names_match_ignoring_case_and_punctuation(self, tmp_path):
+        input_dir = tmp_path / "input"
+        image = Path(save_image(input_dir / "bartender.jpeg"))
+        (input_dir / "characters.json").write_text(
+            json.dumps([{"name": "BarTender", "path": "input/bartender.jpeg"}]),
+            encoding="utf-8",
+        )
+        screenplay = CharacterScreenplay.load(
+            self._screenplay(
+                tmp_path, [{"name": "Bartender", "description": "a waiter"}]
+            )
+        )
+
+        assert Path(screenplay.build_characters()[0].reference_image) == image
+
+    def test_images_named_after_characters_work_without_a_manifest(self, tmp_path):
+        image = Path(save_image(tmp_path / "input" / "hero.jpeg"))
+        screenplay = CharacterScreenplay.load(
+            self._screenplay(
+                tmp_path, [{"name": "Hero", "description": "a knight"}]
+            )
+        )
+
+        assert Path(screenplay.build_characters()[0].reference_image) == image
+
+    def test_explicit_reference_image_is_resolved_from_the_screenplay(self, tmp_path):
+        image = Path(save_image(tmp_path / "refs" / "hero.png"))
+        screenplay = CharacterScreenplay.load(
+            self._screenplay(
+                tmp_path,
+                [
+                    {
+                        "name": "Hero",
+                        "description": "a knight",
+                        "reference_image": "refs/hero.png",
+                    }
+                ],
+            )
+        )
+
+        assert Path(screenplay.build_characters()[0].reference_image) == image
+
+    def test_missing_explicit_reference_image_raises(self, tmp_path):
+        with pytest.raises(FileNotFoundError, match="Reference image"):
+            CharacterScreenplay.load(
+                self._screenplay(
+                    tmp_path,
+                    [
+                        {
+                            "name": "Hero",
+                            "description": "a knight",
+                            "reference_image": "refs/missing.png",
+                        }
+                    ],
+                )
+            )
+
+
 class TestCharacterDesigner:
 
     @staticmethod
@@ -333,6 +418,70 @@ class TestCharacterDesigner:
         image_utils.text_to_image.assert_not_called()
         assert references["Hero"] == [str(existing)]
 
+    def test_supplied_reference_replaces_generated_primary_view(self, tmp_path):
+        factory = MagicMock()
+        designer = CharacterDesigner(
+            "text-model",
+            output_path=tmp_path,
+            image_utils_factory=factory,
+        )
+        source = tmp_path / "input" / "hero.png"
+        source.parent.mkdir(parents=True, exist_ok=True)
+        Image.new("RGB", (64, 36), color=(200, 10, 10)).save(source)
+        character = CharacterSpec("Hero", "a knight", reference_image=str(source))
+
+        references = designer.create_references([character], tmp_path / "characters")
+
+        factory.assert_not_called()
+        assert references["Hero"] == [
+            str(character.primary_reference_path(tmp_path / "characters"))
+        ]
+        with Image.open(references["Hero"][0]) as reference:
+            assert reference.convert("RGB").getpixel((0, 0)) == (200, 10, 10)
+
+    def test_supplied_reference_overrides_cached_sheet(self, tmp_path):
+        image_utils = self.fake_image_utils()
+        designer = CharacterDesigner(
+            "text-model",
+            output_path=tmp_path,
+            image_utils_factory=lambda *args, **kwargs: image_utils,
+        )
+        source = tmp_path / "input" / "hero.png"
+        source.parent.mkdir(parents=True, exist_ok=True)
+        Image.new("RGB", (64, 36), color=(200, 10, 10)).save(source)
+        character = CharacterSpec("Hero", "a knight", reference_image=str(source))
+        cached = character.primary_reference_path(tmp_path / "characters")
+        save_image(cached)
+
+        designer.create_references([character], tmp_path / "characters")
+
+        image_utils.text_to_image.assert_not_called()
+        with Image.open(cached) as reference:
+            assert reference.convert("RGB").getpixel((0, 0)) == (200, 10, 10)
+
+    def test_extra_views_are_generated_after_supplied_primary(self, tmp_path):
+        image_utils = self.fake_image_utils()
+        designer = CharacterDesigner(
+            "text-model",
+            output_path=tmp_path,
+            image_utils_factory=lambda *args, **kwargs: image_utils,
+        )
+        source = tmp_path / "input" / "hero.png"
+        source.parent.mkdir(parents=True, exist_ok=True)
+        save_image(source)
+        character = CharacterSpec(
+            "Hero",
+            "a knight",
+            views=("front view", "side view"),
+            reference_image=str(source),
+        )
+
+        references = designer.create_references([character], tmp_path / "characters")
+
+        assert len(references["Hero"]) == 2
+        assert image_utils.text_to_image.call_count == 1
+        assert "side view" in image_utils.text_to_image.call_args.args[0]
+
     def test_close_destroys_image_utils(self, tmp_path):
         image_utils = self.fake_image_utils()
         designer = CharacterDesigner(
@@ -380,6 +529,21 @@ class TestCharacterBoardBuilder:
         with Image.open(result) as board:
             assert board.height == 120
             assert board.width > 100
+
+    def test_existing_board_is_refreshed_when_references_change(self, tmp_path):
+        hero = save_image(tmp_path / "hero.png", (64, 64))
+        mage = save_image(tmp_path / "mage.png", (64, 64))
+        output = tmp_path / "board.png"
+        builder = CharacterBoardBuilder(gap=10, panel_height=100)
+        builder.build(["Hero", "Mage"], {"Hero": hero, "Mage": mage}, output)
+        Image.new("RGB", (64, 64), color=(240, 10, 20)).save(hero)
+
+        result = builder.build(
+            ["Hero", "Mage"], {"Hero": hero, "Mage": mage}, output
+        )
+
+        with Image.open(result) as board:
+            assert board.getpixel((20, 20)) == (240, 10, 20)
 
     def test_missing_reference_raises(self, tmp_path):
         builder = CharacterBoardBuilder()
@@ -474,9 +638,11 @@ class TestFrameAnimator:
         prompt = engine.edit.call_args.kwargs["prompt"]
         assert "the knight lowers the sword" in prompt
         assert "dark fantasy" in prompt
-        assert engine.edit.call_args.kwargs["seed"] == scene.seed + 1
+        assert "same camera position" in prompt
+        assert "Do not add, remove or replace characters" in prompt
+        assert engine.edit.call_args.kwargs["seed"] == scene.seed
 
-    def test_keyframe_video_engine_forwards_optional_endpoint(self):
+    def test_keyframe_video_engine_forwards_required_endpoint(self):
         video_utils = MagicMock()
         video_utils.image_to_video.return_value = "scene.mp4"
         engine = KeyframeVideoEngine(
@@ -494,10 +660,28 @@ class TestFrameAnimator:
 
         assert result == "scene.mp4"
         args, kwargs = video_utils.image_to_video.call_args
-        assert args == (start, scene.effective_motion_prompt)
+        assert args[0] is start
+        assert args[1].startswith(scene.effective_motion_prompt)
+        assert "no morphing or identity swaps" in args[1]
         assert kwargs["last_image"] is end
+        assert "identity drift" in kwargs["negative_prompt"]
         assert kwargs["num_frames"] == 21
         assert kwargs["fps"] == 21.0
+
+    def test_keyframe_video_engine_rejects_missing_endpoint(self):
+        video_utils = MagicMock()
+        engine = KeyframeVideoEngine(
+            "test/video",
+            "output",
+            video_utils_factory=lambda *args, **kwargs: video_utils,
+        )
+        scene = self.scene()
+        start = Image.new("RGB", (64, 36))
+
+        with pytest.raises(ValueError, match="requires an end image"):
+            engine.generate(scene, start, None, "scene.mp4", num_frames=21, fps=21.0)
+
+        video_utils.image_to_video.assert_not_called()
 
     def test_animate_scene_generates_every_frame(self, tmp_path):
         keyframe = save_image(tmp_path / "keyframe.png", (64, 36))
@@ -788,6 +972,25 @@ class TestCharacterAnimationProcessor:
         assert FakeVideoUtils.calls == ["concat", "audio", "sync_subtitles", "subtitles"]
         assert (tmp_path / "out" / "Demo_frames_final_subtitles.mp4").exists()
 
+    def test_subtitles_can_be_overridden_without_changing_screenplay(self, tmp_path):
+        data = {**MINIMAL_SCREENPLAY, "subtitles": "horizontal.json"}
+        screenplay_file = write_screenplay(tmp_path, data)
+        vertical = tmp_path / "vertical.json"
+        vertical.write_text("{}", encoding="utf-8")
+        video_utils = MagicMock()
+        video_utils.add_subtitles_to_video.return_value = "result.mp4"
+        processor = CharacterAnimationProcessor(
+            screenplay_file,
+            output_path=tmp_path / "out",
+            video_utils=video_utils,
+            subtitles="vertical.json",
+        )
+
+        result = processor._add_subtitles("input.mp4")
+
+        assert result == "result.mp4"
+        assert video_utils.add_subtitles_to_video.call_args.args[1] == str(vertical)
+
     def test_durations_are_scaled_to_audio(self, tmp_path):
         data = {
             **MINIMAL_SCREENPLAY,
@@ -863,6 +1066,73 @@ class TestCharacterAnimationProcessor:
         plan = processor.format_plan()
         assert "Characters:" in plan
         assert "Total frames to paint: 48" in plan
+
+    def test_vertical_orientation_swaps_dimensions_and_updates_prompts(self, tmp_path):
+        screenplay_file = write_screenplay(tmp_path, MINIMAL_SCREENPLAY)
+        processor = CharacterAnimationProcessor(
+            screenplay_file,
+            output_path=tmp_path / "out",
+            orientation="vertical",
+        )
+
+        scenes = processor.screenplay.build_scenes()
+        processor._apply_animation_overrides(scenes)
+        scene = scenes[0]
+
+        assert (scene.width, scene.height) == (360, 640)
+        assert scene.prompt.startswith("Vertical portrait composition")
+        assert scene.motion_prompt.startswith("Vertical portrait composition")
+        processor._apply_animation_overrides(scenes)
+        assert scene.prompt.count("Vertical portrait composition") == 1
+        assert "Format: 360x640 (vertical)" in processor.format_plan()
+
+    def test_explicit_dimensions_override_orientation(self, tmp_path):
+        screenplay_file = write_screenplay(tmp_path, MINIMAL_SCREENPLAY)
+        processor = CharacterAnimationProcessor(
+            screenplay_file,
+            output_path=tmp_path / "out",
+            orientation="horizontal",
+            width=1280,
+            height=720,
+        )
+
+        scenes = processor.screenplay.build_scenes()
+        processor._apply_animation_overrides(scenes)
+
+        assert (scenes[0].width, scenes[0].height) == (1280, 720)
+
+    def test_video_mode_requires_an_end_prompt_or_frame_before_models(self, tmp_path):
+        data = {**MINIMAL_SCREENPLAY, "animation_mode": "video"}
+        screenplay_file = write_screenplay(tmp_path, data)
+        calls = []
+
+        with self._processor(screenplay_file, tmp_path, calls) as processor:
+            with pytest.raises(ValueError, match="Every video scene needs"):
+                processor.format_plan()
+
+        assert calls == []
+
+    def test_video_mode_rejects_missing_end_frame_before_models(self, tmp_path):
+        data = {
+            **MINIMAL_SCREENPLAY,
+            "animation_mode": "video",
+            "scenes": [
+                {
+                    "name": "Ending",
+                    "duration": 1,
+                    "prompt": "a castle",
+                    "end_frame": "missing.png",
+                }
+            ],
+        }
+        screenplay_file = write_screenplay(tmp_path, data)
+        calls = []
+
+        with self._processor(screenplay_file, tmp_path, calls) as processor:
+            with pytest.raises(FileNotFoundError, match="End frame for scene 'Ending'"):
+                processor.format_plan()
+
+        assert calls == []
 
     def test_video_mode_uses_end_keyframe_and_releases_qwen_first(self, tmp_path):
         data = {
@@ -947,3 +1217,39 @@ class TestCharacterAnimationProcessor:
         screenplay_file = write_screenplay(tmp_path, data)
         with pytest.raises(ValueError, match="characters"):
             CharacterAnimationProcessor(screenplay_file, output_path=tmp_path / "out")
+
+
+class TestCervezaScreenplay:
+
+    def test_single_canonical_screenplay_uses_the_supplied_group(self):
+        screenplay_path = (
+            Path(__file__).parents[1]
+            / "examples"
+            / "largo_viaje"
+            / "el_sabio"
+            / "cerveza"
+            / "screenplay.json"
+        )
+        screenplay = CharacterScreenplay.load(screenplay_path)
+        characters = screenplay.build_characters()
+        scenes = screenplay.build_scenes()
+
+        assert len(scenes) == 49
+        assert all(scene.animation_mode == "video" for scene in scenes)
+        assert all(scene.motion_prompt and scene.end_prompt for scene in scenes)
+        assert {character.name for character in characters} == {
+            "Axel",
+            "BarTender",
+            "Druid",
+            "Monk",
+            "Patricia",
+            "Pedro",
+            "Prima",
+            "Rubo",
+            "Saul",
+        }
+        assert all(character.has_supplied_reference for character in characters)
+        assert set(scenes[-1].character_names) == {
+            character.name for character in characters
+        }
+        assert not list(screenplay_path.parent.glob("screenplay_*.json"))

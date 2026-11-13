@@ -1,0 +1,56 @@
+[
+  {
+    "name": "Axel",
+    "path": "input/axel.jpeg",
+    "original_prompt": "Axel, a young man with short brown hair and blue eyes, wearing a casual leather jacket and jeans, standing in an urban setting.",
+    "features": "Young male, short brown hair, blue eyes, modern casual style, athletic build. Drummer."
+  },
+  {
+    "name": "BarTender",
+    "path": "input/bartender.jpeg",
+    "original_prompt": "A professional waiter in a classic white shirt and black vest, holding a tray in a cozy dimly lit restaurant background.",
+    "features": "Male, clean-shaven, professional attire, friendly expression."
+  },
+  {
+    "name": "Druid",
+    "path": "input/druid.jpeg",
+    "original_prompt": "An ancient druid with a long white beard and flowing green robes, holding a wooden staff decorated with leaves in a mystical forest.",
+    "features": "Elderly male, long white beard, green robes, mystical aura, wise expression."
+  },
+  {
+    "name": "Monk",
+    "path": "input/monk.jpeg",
+    "original_prompt": "A serene monk in brown robes, sitting in a meditative pose within a peaceful stone monastery courtyard.",
+    "features": "Male, shaved head, brown monastic habit, peaceful expression, humble appearance."
+  },
+  {
+    "name": "Patricia",
+    "path": "input/patricia.jpeg",
+    "original_prompt": "Patricia, a woman with long wavy red hair and green eyes, wearing a floral summer dress holding a violin in a bright sunny garden.",
+    "features": "Female, long wavy red hair, green eyes, summer attire, violinist."
+  },
+  {
+    "name": "Pedro",
+    "path": "input/pedro.jpeg",
+    "original_prompt": "Pedro, a middle-aged man with short salt-and-pepper hair and a friendly smile, wearing a blue button-down shirt with a bass guitar.",
+    "features": "Middle-aged male, salt-and-pepper hair, approachable look, casual attire, bassist."
+  },
+  {
+    "name": "Prima",
+    "path": "input/prima.jpeg",
+    "original_prompt": "A young girl with blonde pigtails and a curious expression, wearing a colorful sweater, singing with energy.",
+    "features": "Young female, blonde hair in pigtails, youthful features, vocalist, singer."
+  },
+  {
+    "name": "Rubo",
+    "path": "input/rubo.jpeg",
+    "original_prompt": "Rubo, a tall man with a short beard and dark hair, wearing a dark hoodie and playing second guitar.",
+    "features": "Male, short beard, dark hair, casual urban style, second guitarist."
+  },
+  {
+    "name": "Saul",
+    "path": "input/saul.jpeg",
+    "original_prompt": "Saul, a man with glasses and a neatly trimmed beard, wearing a professional suit playing lead guitar.",
+    "features": "Male, wears glasses, trimmed beard, formal attire, lead guitarist."
+  }
+]

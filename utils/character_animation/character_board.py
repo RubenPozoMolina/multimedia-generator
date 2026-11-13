@@ -54,10 +54,8 @@ class CharacterBoardBuilder:
             return str(references[character_names[0]])
 
         destination = Path(output_path)
-        if destination.exists():
-            logger.info("Found existing character board: %s", destination)
-            return str(destination)
-
+        # Rebuilding this lightweight board is cheap and prevents stale character
+        # images from surviving after a supplied reference has been replaced.
         panels = [self._load_panel(references[name]) for name in character_names]
         width = sum(panel.width for panel in panels) + self.gap * (len(panels) + 1)
         height = self.panel_height + self.gap * 2

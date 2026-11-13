@@ -6,6 +6,8 @@ import logging
 from pathlib import Path
 from typing import Callable, Sequence
 
+from PIL import Image
+
 from utils.character_animation.screenplay import (
     DEFAULT_CHARACTER_GUIDANCE_SCALE,
     DEFAULT_CHARACTER_HEIGHT,
@@ -122,8 +124,9 @@ class CharacterDesigner:
     ) -> dict[str, list[str]]:
         """Create every configured view for every character.
 
-        Existing files are reused so an interrupted generation can resume
-        without regenerating the whole cast.
+        A reference image supplied by the user replaces the primary generated
+        view.  Existing files are reused so an interrupted generation can
+        resume without regenerating the whole cast.
         """
         base_dir = Path(characters_dir)
         references: dict[str, list[str]] = {}
@@ -131,7 +134,12 @@ class CharacterDesigner:
         for character in characters:
             view_paths = character.reference_paths(base_dir)
             character_references: list[str] = []
-            for view, path in view_paths.items():
+            for index, (view, path) in enumerate(view_paths.items()):
+                if index == 0 and character.has_supplied_reference:
+                    self._copy_supplied_reference(character, path)
+                    character_references.append(str(path))
+                    continue
+
                 if path.exists():
                     self.logger.info("Found existing character reference: %s", path)
                     character_references.append(str(path))
@@ -156,6 +164,22 @@ class CharacterDesigner:
             references[character.name] = character_references
 
         return references
+
+    def _copy_supplied_reference(self, character: CharacterSpec, destination: Path) -> str:
+        """Copy a user-supplied image into the character reference cache."""
+        source = Path(character.reference_image)
+        if not source.is_file():
+            raise FileNotFoundError(
+                f"Reference image for character '{character.name}' not found: {source}"
+            )
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        if source.resolve() != destination.resolve():
+            with Image.open(source) as image:
+                image.convert("RGB").save(destination)
+        self.logger.info(
+            "Using supplied reference for character %s: %s", character.name, source
+        )
+        return str(destination)
 
     def create_background(
         self,

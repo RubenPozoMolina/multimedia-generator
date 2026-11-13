@@ -192,28 +192,30 @@ python scripts/create_video_from_screenplay.py \
 ```
 You can see the result here: [La Plaga Music Video](https://youtu.be/ZfqbFIOXRTs?si=CJCsruSkxdxnZbcA)
 
-Generate the "Cerveza" animated heavy-metal tavern video (49 animated scenes with audio and subtitles):
+Generate the "Cerveza" animated heavy-metal tavern video (49 start-to-end
+keyframe scenes with audio and subtitles) in horizontal format:
 
 ```bash
-python scripts/create_video_from_screenplay.py \
-  --screenplay examples/largo_viaje/el_sabio/cerveza/screenplay.json \
-  --output output/cerveza
+scripts/create_cerveza_video.sh
 ```
 
-The creative script and shot breakdown are documented in
-[examples/largo_viaje/el_sabio/cerveza/guion.md](examples/largo_viaje/el_sabio/cerveza/guion.md).
-
-Generate the full Cerveza song in vertical 9:16 format (480x832) for
-Shorts/Reels, ready to be trimmed afterwards:
+Generate the same screenplay in vertical 9:16 format (480x832) for
+Shorts/Reels:
 
 ```bash
 scripts/create_cerveza_vertical.sh
 ```
 
-Use `scripts/create_cerveza_vertical.sh --dry-run` to review the 49-scene plan
-without loading models. It uses `screenplay_characters_vertical.json` and
-`subtitles_vertical.json` (subtitles raised to stay clear of the Shorts UI) in
-`examples/largo_viaje/el_sabio/cerveza/`.
+Both wrappers use the single canonical
+`examples/largo_viaje/el_sabio/cerveza/screenplay.json`. The vertical wrapper
+passes `--orientation vertical` and selects `subtitles_vertical.json`, whose
+subtitles are raised to stay clear of the Shorts UI. Add `--dry-run` to either
+wrapper to review the plan without loading models. Their default output folders
+(`output/cerveza_group` and `output/cerveza_vertical_group`) are separate from
+older Cerveza runs, so cached scenes cannot reintroduce the previous cast.
+
+The creative script and shot breakdown are documented in
+[examples/largo_viaje/el_sabio/cerveza/guion.md](examples/largo_viaje/el_sabio/cerveza/guion.md).
 
 ### Character-Consistent Animation
 
@@ -226,8 +228,10 @@ cast by creating the characters **before** animating anything:
    `Qwen/Qwen-Image-Edit`.
 3. By default, every subsequent frame is painted with Qwen-Image-Edit, re-anchoring
    periodically to the scene keyframe.
-4. For video generation, Qwen-Image-Edit creates an optional final keyframe from
-   the start image, then Wan generates motion between those images in one pass.
+4. For video generation, Qwen-Image-Edit creates a required final keyframe from
+   the start image (or uses `end_frame`), then Wan generates motion between those
+   two images in one pass. Identity rules are applied to both image edits and
+   video generation to reduce face, costume and character drift.
 
 This is new, additive code. Existing character screenplays continue to use the
 frame-by-frame path unless `animation_mode` or `video_model` opts into video
@@ -268,6 +272,9 @@ python scripts/create_video_from_character_screenplay.py \
 | `--frame-model`     | No       | Screenplay value (`Qwen/Qwen-Image-Edit`) | Image-edit model for keyframes and frames |
 | `--animation-mode`  | No       | Screenplay value, otherwise `frames` | `frames` or `video`; overrides screenplay |
 | `--video-model`     | No       | Screenplay value, otherwise Wan2.2 | Image-to-video model; overrides screenplay |
+| `--orientation`     | No       | Screenplay dimensions | `horizontal` or `vertical`; swaps the screenplay dimensions when needed |
+| `--width` / `--height` | No     | Screenplay values | Override every scene's dimensions; explicit values take precedence over the orientation preset |
+| `--subtitles`       | No       | Screenplay value | Override subtitles JSON, relative to the screenplay |
 | `--dry-run`         | No       | `False` | Print the plan without loading any model                 |
 | `--characters-only` | No       | `False` | Create the reference sheets and stop before animating     |
 | `--log-level`       | No       | `INFO`  | `DEBUG`, `INFO`, `WARNING` or `ERROR`                    |
@@ -314,6 +321,7 @@ python scripts/create_video_from_character_screenplay.py \
       "name": "Forest landscape",
       "duration": 3,
       "prompt": "a moonlit enchanted forest with fireflies",
+      "end_prompt": "the fireflies gather above the moonlit forest path",
       "characters": []
     }
   ]
@@ -327,6 +335,7 @@ python scripts/create_video_from_character_screenplay.py \
 | `name`                    | Global    | Yes      | —       | Project name used in output filenames |
 | `characters`              | Global    | Yes      | —       | Non-empty list of character definitions |
 | `scenes`                  | Global    | Yes      | —       | Non-empty list of scenes |
+| `character_input`         | Global    | No       | Auto-detected | Directory or JSON manifest with supplied character reference images; defaults to an `input` folder next to the screenplay |
 | `style_prompt`            | Global    | No       | `""`    | Global style prefix added to every prompt (`common_prompt` is also accepted) |
 | `negative_prompt`         | Global    | No       | `""`    | Negative prompt for all generations |
 | `width` / `height`        | Global    | No       | `704` / `480` | Video dimensions |
@@ -354,6 +363,7 @@ python scripts/create_video_from_character_screenplay.py \
 | `negative_prompt`         | Character | No       | `""`    | Extra negative prompt for this character |
 | `seed`                    | Character | No       | `None`  | Seed for the reference sheets |
 | `height` / `width`        | Character | No       | `1024` / `768` | Reference-sheet dimensions (portrait) |
+| `reference_image`         | Character | No       | Auto-detected | Existing image (relative to the screenplay) used as the primary identity reference instead of generating it |
 | `name`                    | Scene     | No       | `scene_{index}` | Unique scene name |
 | `prompt`                  | Scene     | Yes      | —       | Scene description |
 | `duration`                | Scene     | No       | `5`     | Scene duration in seconds |
@@ -361,8 +371,8 @@ python scripts/create_video_from_character_screenplay.py \
 | `motion_prompt`           | Scene     | No       | `prompt`| Action to advance from the first to the last frame |
 | `keyframe_prompt`         | Scene     | No       | `prompt`| Description used to compose the first frame from the character references |
 | `start_frame`             | Scene     | No       | `None`  | Existing image (relative to the screenplay) to use as the first frame instead of generating one |
-| `end_prompt`              | Scene     | No       | `None`  | Final pose/action for Qwen to edit from the starting keyframe |
-| `end_frame`               | Scene     | No       | `None`  | Existing image (relative to the screenplay) to use as the final video condition |
+| `end_prompt`              | Scene     | Video mode | `None`  | Final pose/action for Qwen to edit from the starting keyframe |
+| `end_frame`               | Scene     | Video mode | `None`  | Existing image (relative to the screenplay) to use as the final video condition |
 | `animation_mode`          | Scene     | No       | Global  | Override `frames` / `video` for this scene |
 | `video_model`             | Scene     | No       | Global  | Override the image-to-video model; opts this scene into `video` unless the screenplay explicitly selects `frames` |
 | `video_guidance_scale` / `video_num_inference_steps` | Scene | No | Global | Per-scene image-to-video settings |
@@ -373,11 +383,39 @@ python scripts/create_video_from_character_screenplay.py \
 | `seed`                    | Scene     | No       | `None`  | Seed for keyframes and frames |
 | `height` / `width` / `fps`| Scene     | No       | Global  | Per-scene overrides |
 
-In `video` mode, `end_prompt` and `end_frame` are optional; without either,
-the scene is generated as ordinary image-to-video from its starting keyframe.
-The legacy `frames` mode remains the default for older screenplays. Wan's
-`last_image` endpoint is used when an end image is available; LTX-Video rejects
-that conditioning explicitly.
+#### Supplied Character References
+
+If the screenplay folder contains an `input` directory, the pipeline uses its
+images as the primary character references instead of generating them with
+`character_image_model`. This is useful when the cast already exists as
+photographs or drawings:
+
+```text
+cerveza/
+├── screenplay.json
+└── input/
+    ├── characters.json
+    ├── axel.jpeg
+    └── bartender.jpeg
+```
+
+`input/characters.json` can be a list of `{ "name", "path" }` objects (as in
+the Cerveza example), a mapping of names to paths, or omitted entirely when the
+image files are named after the characters (`bartender.jpeg` for
+`Bartender`). Names are matched case-insensitively and ignoring punctuation,
+so `BarTender` and `Bartender` resolve to the same image.
+
+A character may also declare `reference_image` explicitly in the screenplay.
+Supplied references take precedence over previously generated reference
+sheets, while any additional configured views are still generated as needed.
+Use `--characters-only --dry-run` first to review which references would be
+used.
+
+In `video` mode, every scene must declare either `end_prompt` or `end_frame`.
+The processor validates both endpoints before loading a model and always passes
+the final image through Wan's `last_image` condition. The legacy `frames` mode
+remains the default for older screenplays. LTX-Video and LTX-2 do not support
+this final-image conditioning.
 
 #### Output Layout
 
@@ -405,17 +443,23 @@ output/character_animation/
 Every artifact is cached on disk. Interrupted runs resume from the last
 completed reference, keyframe, frame, scene video and montage.
 
-A migrated version of the "Cerveza" example is included at
-[examples/largo_viaje/el_sabio/cerveza/screenplay_characters.json](examples/largo_viaje/el_sabio/cerveza/screenplay_characters.json).
-It declares the monk, the bartender and the band as persistent characters and
-assigns a cast to each of the 49 shots. It uses 12 fps to keep the frame count
-practical; raise it to 24 fps for smoother motion at double the cost.
+The canonical "Cerveza" example is
+[examples/largo_viaje/el_sabio/cerveza/screenplay.json](examples/largo_viaje/el_sabio/cerveza/screenplay.json).
+It uses the nine supplied references from `input/characters.json`: Monk, Axel,
+BarTender, Druid, Patricia, Pedro, Prima, Rubo and Saul. Every one of its 49
+shots has a concise motion instruction and an `end_prompt`. It uses 16 fps to
+keep the frame count practical; raise it to 24 fps for smoother motion at a
+higher cost.
 
 ```bash
 python scripts/create_video_from_character_screenplay.py \
-  --screenplay examples/largo_viaje/el_sabio/cerveza/screenplay_characters.json \
-  --output output/cerveza_frames
+  --screenplay examples/largo_viaje/el_sabio/cerveza/screenplay.json \
+  --output output/cerveza_group \
+  --orientation horizontal
 ```
+
+Use `--orientation vertical --subtitles subtitles_vertical.json` with the same
+command for the vertical version.
 
 > **Cost warning:** a 4-second scene at 24 fps requires 96 Qwen-Image-Edit
 > calls. Use `--dry-run` to review the total before starting a long job. The

@@ -10,10 +10,12 @@ from __future__ import annotations
 
 import copy
 import json
-import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Sequence
+
+from utils.character_animation.character_inputs import CharacterInputLibrary
+from utils.character_animation.naming import slugify
 
 DEFAULT_HEIGHT = 480
 DEFAULT_WIDTH = 704
@@ -32,12 +34,6 @@ DEFAULT_FRAME_IMAGE_MODEL = "Qwen/Qwen-Image-Edit"
 DEFAULT_VIDEO_MODEL = "Wan-AI/Wan2.2-I2V-A14B-Diffusers"
 ALLOWED_MOTION_STRENGTHS = {"normal", "strong"}
 ALLOWED_ANIMATION_MODES = {"frames", "video"}
-
-
-def slugify(value: str) -> str:
-    """Return a filesystem-friendly representation of ``value``."""
-    slug = re.sub(r"[^a-z0-9]+", "_", value.strip().lower()).strip("_")
-    return slug or "item"
 
 
 def join_prompts(*parts: str | None) -> str:
@@ -63,10 +59,12 @@ class CharacterSpec:
     seed: int | None = None
     height: int | None = None
     width: int | None = None
+    reference_image: str = ""
 
     def __post_init__(self) -> None:
         self.name = self.name.strip()
         self.description = self.description.strip()
+        self.reference_image = str(self.reference_image or "").strip()
         if not self.name:
             raise ValueError("Character is missing required field: 'name'")
         if not self.description:
@@ -108,6 +106,11 @@ class CharacterSpec:
     def primary_reference_path(self, characters_dir: str | Path) -> Path:
         """Return the path of the primary identity reference."""
         return self.reference_paths(characters_dir)[self.primary_view]
+
+    @property
+    def has_supplied_reference(self) -> bool:
+        """Whether the primary reference comes from an external image."""
+        return bool(self.reference_image)
 
 
 @dataclass
@@ -208,6 +211,9 @@ class CharacterScreenplay:
         self.data = data
         self.source_path = Path(source_path)
         self.output_path = Path(output_path)
+        self.character_inputs = CharacterInputLibrary.from_screenplay(
+            self.source_path, data
+        )
         self._characters: list[CharacterSpec] | None = None
         self._scenes: list[SceneSpec] | None = None
         self.validate()
@@ -385,8 +391,9 @@ class CharacterScreenplay:
             views = raw_character.get("views", [DEFAULT_REFERENCE_VIEW])
             if isinstance(views, str):
                 views = [views]
+            name = str(raw_character.get("name", ""))
             character = CharacterSpec(
-                name=str(raw_character.get("name", "")),
+                name=name,
                 description=str(raw_character.get("description", "")),
                 views=tuple(str(view) for view in views),
                 reference_prompt=str(raw_character.get("reference_prompt", "") or ""),
@@ -394,6 +401,7 @@ class CharacterScreenplay:
                 seed=raw_character.get("seed"),
                 height=raw_character.get("height"),
                 width=raw_character.get("width"),
+                reference_image=self._resolve_reference_image(raw_character, name),
             )
             if character.name in names:
                 raise ValueError(f"Duplicated character name: '{character.name}'")
@@ -405,6 +413,19 @@ class CharacterScreenplay:
             slugs.add(character.slug)
             characters.append(character)
         return characters
+
+    def _resolve_reference_image(self, raw_character: dict[str, Any], name: str) -> str:
+        declared = raw_character.get("reference_image") or raw_character.get("image")
+        if declared:
+            path = self.resolve_asset(str(declared))
+            if not path.is_file():
+                raise FileNotFoundError(
+                    f"Reference image for character '{name}' not found: {path}"
+                )
+            return str(path)
+
+        supplied = self.character_inputs.resolve(name)
+        return str(supplied) if supplied is not None else ""
 
     def _scene_animation_mode(self, scene: dict[str, Any]) -> str:
         if "animation_mode" in scene:

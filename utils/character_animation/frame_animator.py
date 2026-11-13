@@ -16,15 +16,18 @@ from utils.character_animation.screenplay import SceneSpec, join_prompts
 logger = logging.getLogger(__name__)
 
 IDENTITY_RULES = (
-    "Keep every character exactly identical to the reference: same face, facial features, "
-    "skin tone, eye color, hairstyle, costume, accessories and body proportions. "
-    "Do not redesign, morph, duplicate or replace any character."
+    "Treat each supplied reference as an immutable identity anchor. Keep every character "
+    "exactly identical: same facial structure, age, gender, skin tone, eye color, hairstyle, "
+    "facial hair, costume, accessories and body proportions. Change only the action, pose "
+    "and expression requested by the scene. Never redesign, age, morph, duplicate, replace, "
+    "swap faces or costumes, or change a character's species."
 )
 
 NEGATIVE_RULES = (
-    "character redesign, different face, different clothes, morphing, identity change, "
-    "duplicate character, reference sheet, collage, split screen, multiple panels, "
-    "text, watermark, logo, deformed anatomy, extra fingers, extra limbs"
+    "character redesign, different face, face swap, different clothes, hairstyle change, "
+    "age change, gender change, species transformation, morphing, identity change, "
+    "identity drift, duplicate character, reference sheet, collage, split screen, "
+    "multiple panels, text, watermark, logo, deformed anatomy, extra fingers, extra limbs"
 )
 
 SUBTLE_MOTION_INSTRUCTION = (
@@ -132,7 +135,9 @@ class FrameAnimator:
             num_inference_steps=scene.num_inference_steps,
             height=scene.height,
             width=scene.width,
-            seed=scene.seed + 1 if scene.seed is not None else None,
+            # Reuse the scene seed so the endpoint edit does not introduce a new
+            # random identity or composition unnecessarily.
+            seed=scene.seed,
         )
         self._save_frame(generated, destination, scene)
         return str(destination)
@@ -151,8 +156,10 @@ class FrameAnimator:
             f"Scene: {join_prompts(style_prompt, scene.end_prompt)}",
             cast,
             IDENTITY_RULES,
-            "Preserve the setting and visual style while changing the pose to match "
-            "the final action. Output one single animation frame.",
+            "Keep the same camera position, framing, setting, background, lighting and "
+            "visual style. Do not add, remove or replace characters. Edit only the action, "
+            "pose and expression needed to match the final moment; do not reinterpret the "
+            "scene. Output one single animation frame.",
         )
 
     def animate_scene(

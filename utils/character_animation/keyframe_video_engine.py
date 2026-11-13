@@ -6,7 +6,14 @@ from typing import Any
 
 from PIL import Image
 
+from utils.character_animation.frame_animator import NEGATIVE_RULES
+from utils.character_animation.screenplay import join_prompts
 from utils.video_utils import VideoUtils
+
+VIDEO_IDENTITY_INSTRUCTION = (
+    "Move naturally from the start image to the exact end image. Preserve every "
+    "character's face, age, hairstyle, clothing and body; no morphing or identity swaps."
+)
 
 
 class KeyframeVideoEngine:
@@ -24,13 +31,17 @@ class KeyframeVideoEngine:
         self,
         scene,
         start_image: Image.Image,
-        end_image: Image.Image | None,
+        end_image: Image.Image,
         output_path: str,
         num_frames: int,
         fps: float,
     ) -> str:
+        if end_image is None:
+            raise ValueError(
+                f"Scene '{scene.name}' requires an end image for start-to-end video generation"
+            )
         kwargs = {
-            "negative_prompt": scene.negative_prompt,
+            "negative_prompt": join_prompts(scene.negative_prompt, NEGATIVE_RULES),
             "height": scene.height,
             "width": scene.width,
             "num_frames": num_frames,
@@ -40,11 +51,10 @@ class KeyframeVideoEngine:
             "fps": fps,
             "output_path": output_path,
         }
-        if end_image is not None:
-            kwargs["last_image"] = end_image
+        kwargs["last_image"] = end_image
         return self.video_utils.image_to_video(
             start_image,
-            scene.effective_motion_prompt,
+            join_prompts(scene.effective_motion_prompt, VIDEO_IDENTITY_INSTRUCTION),
             **kwargs,
         )
 

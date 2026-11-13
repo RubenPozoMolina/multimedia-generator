@@ -9,8 +9,8 @@
 # e.g. --dry-run, --characters-only, --no-evaluate, --log-level DEBUG.
 #
 # Environment overrides:
-#   SCREENPLAY      screenplay JSON (default: cerveza/screenplay_characters.json)
-#   OUTPUT_DIR      output directory (default: output/cerveza_full)
+#   SCREENPLAY      screenplay JSON (default: cerveza/screenplay.json)
+#   OUTPUT_DIR      output directory (default: output/cerveza_group)
 #   ANIMATION_MODE  video | frames (default: video)
 #   VIDEO_MODEL     image-to-video model (default: Wan-AI/Wan2.2-I2V-A14B-Diffusers)
 #   PYTHON          python interpreter (default: .venv/bin/python if present)
@@ -20,8 +20,8 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
-SCREENPLAY="${SCREENPLAY:-examples/largo_viaje/el_sabio/cerveza/screenplay_characters.json}"
-OUTPUT_DIR="${OUTPUT_DIR:-output/cerveza_full}"
+SCREENPLAY="${SCREENPLAY:-examples/largo_viaje/el_sabio/cerveza/screenplay.json}"
+OUTPUT_DIR="${OUTPUT_DIR:-output/cerveza_group}"
 ANIMATION_MODE="${ANIMATION_MODE:-video}"
 VIDEO_MODEL="${VIDEO_MODEL:-Wan-AI/Wan2.2-I2V-A14B-Diffusers}"
 
@@ -48,6 +48,7 @@ echo "Python:     $PYTHON"
 exec "$PYTHON" scripts/create_video_from_character_screenplay.py \
     --screenplay "$SCREENPLAY" \
     --output "$OUTPUT_DIR" \
+    --orientation horizontal \
     --animation-mode "$ANIMATION_MODE" \
     --video-model "$VIDEO_MODEL" \
     "$@"

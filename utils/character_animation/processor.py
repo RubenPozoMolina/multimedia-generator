@@ -32,6 +32,11 @@ from utils.video_utils import VideoUtils
 
 logger = logging.getLogger(__name__)
 
+VERTICAL_COMPOSITION_PROMPT = (
+    "Vertical portrait composition, keep faces and key action centered and clear "
+    "of frame edges"
+)
+
 
 class CharacterAnimationProcessor:
     """Generate a character-driven video using frame or keyframe animation.
@@ -65,10 +70,25 @@ class CharacterAnimationProcessor:
         video_engine: Any | None = None,
         animation_mode: str | None = None,
         video_model: str | None = None,
+        orientation: str | None = None,
+        width: int | None = None,
+        height: int | None = None,
+        subtitles: str | None = None,
     ):
         self.screenplay = CharacterScreenplay.load(screenplay, output_path)
         self.output_path = Path(output_path)
         self.logger = logger or logging.getLogger(__name__)
+
+        self.orientation = str(orientation).strip().lower() if orientation else None
+        if self.orientation not in {None, "horizontal", "vertical"}:
+            raise ValueError(f"Invalid orientation: '{orientation}'")
+        self.width = int(width) if width is not None else None
+        self.height = int(height) if height is not None else None
+        if self.width is not None and self.width <= 0:
+            raise ValueError("width must be positive")
+        if self.height is not None and self.height <= 0:
+            raise ValueError("height must be positive")
+        self.subtitles = subtitles
 
         self.character_model = character_model or self.screenplay.character_image_model
         self.frame_model = frame_model or self.screenplay.frame_image_model
@@ -212,6 +232,7 @@ class CharacterAnimationProcessor:
         try:
             scenes = self.screenplay.build_scenes()
             self._apply_animation_overrides(scenes)
+            self._validate_video_endpoints(scenes)
             self._apply_audio_duration(scenes)
             characters = self.screenplay.build_characters()
             self._log_plan(characters, scenes)
@@ -236,18 +257,24 @@ class CharacterAnimationProcessor:
         """Return a human-readable plan without loading any model."""
         scenes = self.screenplay.build_scenes()
         self._apply_animation_overrides(scenes)
+        self._validate_video_endpoints(scenes)
         self._apply_audio_duration(scenes)
         characters = self.screenplay.build_characters()
         lines = [
             f"Screenplay: {self.screenplay.name}",
             f"Output: {self.output_path}",
+            f"Format: {scenes[0].width}x{scenes[0].height}"
+            + (f" ({self.orientation})" if self.orientation else ""),
             f"Character model: {self.character_model}",
             f"Frame model: {self.frame_model}",
             "",
             "Characters:",
         ]
         for character in characters:
-            lines.append(f"  - {character.name}: {len(character.views)} view(s)")
+            source = " (supplied reference image)" if character.has_supplied_reference else ""
+            lines.append(
+                f"  - {character.name}: {len(character.views)} view(s){source}"
+            )
         lines.append("")
         lines.append("Scenes:")
         painted_frames = 0
@@ -281,6 +308,58 @@ class CharacterAnimationProcessor:
                 scene.animation_mode = self.animation_mode
             if self.video_model:
                 scene.video_model = self.video_model
+            if self.orientation:
+                width = self.screenplay.width
+                height = self.screenplay.height
+                if self.orientation == "vertical" and width > height:
+                    width, height = height, width
+                elif self.orientation == "horizontal" and height > width:
+                    width, height = height, width
+                scene.width = width
+                scene.height = height
+            if self.width is not None:
+                scene.width = self.width
+            if self.height is not None:
+                scene.height = self.height
+            if self.orientation == "vertical":
+                scene.prompt = self._with_vertical_composition(scene.prompt)
+                if scene.motion_prompt:
+                    scene.motion_prompt = self._with_vertical_composition(
+                        scene.motion_prompt
+                    )
+                if scene.keyframe_prompt:
+                    scene.keyframe_prompt = self._with_vertical_composition(
+                        scene.keyframe_prompt
+                    )
+                if scene.end_prompt:
+                    scene.end_prompt = self._with_vertical_composition(scene.end_prompt)
+
+    @staticmethod
+    def _with_vertical_composition(prompt: str) -> str:
+        if prompt.startswith(VERTICAL_COMPOSITION_PROMPT):
+            return prompt
+        return join_prompts(VERTICAL_COMPOSITION_PROMPT, prompt)
+
+    def _validate_video_endpoints(self, scenes: Sequence[SceneSpec]) -> None:
+        missing = [
+            scene.name
+            for scene in scenes
+            if scene.animation_mode == "video"
+            and not (scene.end_prompt or scene.end_frame)
+        ]
+        if missing:
+            raise ValueError(
+                "Every video scene needs an 'end_prompt' or 'end_frame' so it can "
+                f"be generated from a start image to an end image. Missing: {', '.join(missing)}"
+            )
+        for scene in scenes:
+            if scene.animation_mode != "video" or not scene.end_frame:
+                continue
+            source = self.screenplay.resolve_asset(scene.end_frame)
+            if not source.is_file():
+                raise FileNotFoundError(
+                    f"End frame for scene '{scene.name}' not found: {source}"
+                )
 
     def _log_plan(self, characters: Sequence[CharacterSpec], scenes: Sequence[SceneSpec]) -> None:
         total_frames = sum(scene.frame_count for scene in scenes)
@@ -345,7 +424,7 @@ class CharacterAnimationProcessor:
 
     def _create_end_keyframes(self, scenes: Sequence[SceneSpec]) -> None:
         for scene in scenes:
-            if scene.animation_mode != "video" or not (scene.end_prompt or scene.end_frame):
+            if scene.animation_mode != "video":
                 continue
             destination = self.end_keyframe_path(scene)
             if destination.exists():
@@ -459,7 +538,7 @@ class CharacterAnimationProcessor:
             engine = self._get_video_engine(scene.video_model)
             start_image = self._load_image(self.keyframe_path(scene))
             end_path = self.end_keyframe_path(scene)
-            end_image = self._load_image(end_path) if end_path.exists() else None
+            end_image = self._load_image(end_path)
             frame_count = self._video_frame_count(current_scene)
             fps = frame_count / float(current_scene.duration)
             generated = engine.generate(
@@ -645,7 +724,7 @@ class CharacterAnimationProcessor:
         return str(result) if isinstance(result, (str, Path)) else str(destination)
 
     def _add_subtitles(self, video_path: str) -> str:
-        subtitles_relative_path = self.screenplay.subtitles
+        subtitles_relative_path = self.subtitles or self.screenplay.subtitles
         if not subtitles_relative_path:
             return video_path
 
